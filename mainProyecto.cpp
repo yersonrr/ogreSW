@@ -19,50 +19,6 @@ public:
 
 	}
 
-	void drawPlane(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords) {
-		obj->begin("Examples/Rockwall", RenderOperation::OT_TRIANGLE_STRIP);
-			for(int i=0; i<points.size(); i++) {
-				obj->position(points[i]);
-				obj->textureCoord(textures_coords[i]);
-				obj->normal(points[i]);
-			}
-        obj->end();
-	}
-
-	void drawCube(ManualObject* obj, float x, float y, float z) {
-		// front
-		std::vector<v3> points;
-		std::vector<v2> textures;
-		points.push_back(v3(-x, y, -z)); points.push_back(v3(x, y, -z)); points.push_back(v3(-x, -y, -z)); points.push_back(v3(x, -y, -z));
-		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
-		drawPlane(obj, points, textures);
-		points.clear();
-		
-		//back
-		points.push_back(v3(-x, -y, z)); points.push_back(v3(x, -y, z)); points.push_back(v3(-x, y, z)); points.push_back(v3(x, y, z));
-		drawPlane(obj, points, textures); points.clear();
-
-		//top
-		points.push_back(v3(-x, y, z)); points.push_back(v3(x, y, z)); points.push_back(v3(-x, y, -z)); points.push_back(v3(x, y, -z));
-		drawPlane(obj, points, textures);
-		points.clear();
-
-		//bottom
-		points.push_back(v3(-x, -y, -z)); points.push_back(v3(x, -y, -z)); points.push_back(v3(-x, -y, z)); points.push_back(v3(x, -y, z));
-		drawPlane(obj, points, textures);
-		points.clear();
-
-		//left
-		points.push_back(v3(-x, y, z)); points.push_back(v3(-x, y, -z)); points.push_back(v3(-x, -y, z)); points.push_back(v3(-x, -y, -z));
-		drawPlane(obj, points, textures);
-		points.clear();
-
-		//right
-		points.push_back(v3(x, -y, z)); points.push_back(v3(x, -y, -z)); points.push_back(v3(x, y, z)); points.push_back(v3(x, y, -z));
-		drawPlane(obj, points, textures);
-		points.clear();
-	}
-
 	void drawFan(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords) {
 		obj->begin("Examples/Rockwall", RenderOperation::OT_TRIANGLE_FAN);
 			for (int i=0; i<points.size(); i++) {
@@ -154,9 +110,9 @@ public:
 
 	void createWing(SceneManager* manager, SceneNode* wing, std::string name, float wing_size, float degrees[], v3 position) {
 		ManualObject* obj = manager->createManualObject(name);
-		if (name == std::string("ship_left_wing"))
+		if (name.find("left") != std::string::npos)
 			drawLeftWing(obj);
-		else if (name == std::string("ship_right_wing"))
+		else
 			drawRightWing(obj);
 		wing->yaw(Degree(degrees[0]));
 		wing->pitch(Degree(degrees[1]));
@@ -178,8 +134,6 @@ public:
 		back->setScale(ship_size, ship_size, ship_size);
 		back->yaw(Degree(180.0));
 		back->attachObject(obj);
-		
-		//SceneNode* upper_wings = back->createChildSceneNode();
 
 		SceneNode* left_wing1 = back->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
