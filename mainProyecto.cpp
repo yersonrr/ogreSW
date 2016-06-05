@@ -106,28 +106,69 @@ public:
 	void drawRightWing(ManualObject* obj) {
 		std::vector<v3> points;
 		std::vector<v2> textures;
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
 		
+		// upper side
 		points.push_back(v3(0.0, 0.0, 0.0));
 		points.push_back(v3(2.0, 0.0, 0.0));
 		points.push_back(v3(0.7, 5.0, 0.0));
 		points.push_back(v3(0.0, 5.0, 0.0));
 		points.push_back(v3(0.0, 0.0, 0.0));
+		drawFan(obj, points, textures); points.clear();
 
-		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+		// lower side
+		points.push_back(v3(0.0, 0.0, 1.0));
+		points.push_back(v3(2.0, 0.0, 1.0));
+		points.push_back(v3(0.7, 5.0, 1.0));
+		points.push_back(v3(0.0, 5.0, 1.0));
+		points.push_back(v3(0.0, 0.0, 1.0));
 		drawFan(obj, points, textures); points.clear();
 	}
 
 	void drawLeftWing(ManualObject* obj) {
 		std::vector<v3> points;
 		std::vector<v2> textures;
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
 		
+		// upper side
 		points.push_back(v3(0.0, 0.0, 0.0));
 		points.push_back(v3(2.0, 0.0, 0.0));
 		points.push_back(v3(2.0, 5.0, 0.0));
 		points.push_back(v3(1.3, 5.0, 0.0));
 		points.push_back(v3(0.0, 0.0, 0.0));
+		drawFan(obj, points, textures); points.clear();
 
-		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+		// lower side
+		points.push_back(v3(0.0, 0.0, 1.0));
+		points.push_back(v3(2.0, 0.0, 1.0));
+		points.push_back(v3(2.0, 5.0, 1.0));
+		points.push_back(v3(1.3, 5.0, 1.0));
+		points.push_back(v3(0.0, 0.0, 1.0));
+		drawFan(obj, points, textures); points.clear();
+
+		// border
+		points.push_back(v3(0.0, 0.0, 0.0));
+		points.push_back(v3(2.0, 0.0, 0.0));
+		points.push_back(v3(2.0, 0.0, 1.0));
+		points.push_back(v3(0.0, 0.0, 1.0));
+		drawFan(obj, points, textures); points.clear();
+
+		points.push_back(v3(2.0, 0.0, 0.0));
+		points.push_back(v3(2.0, 5.0, 0.0));
+		points.push_back(v3(2.0, 5.0, 1.0));
+		points.push_back(v3(2.0, 0.0, 1.0));
+		drawFan(obj, points, textures); points.clear();
+
+		points.push_back(v3(2.0, 5.0, 0.0));
+		points.push_back(v3(1.3, 5.0, 0.0));
+		points.push_back(v3(1.3, 5.0, 1.0));
+		points.push_back(v3(2.0, 5.0, 1.0));
+		drawFan(obj, points, textures); points.clear();
+
+		points.push_back(v3(1.3, 5.0, 0.0));
+		points.push_back(v3(0.0, 0.0, 0.0));
+		points.push_back(v3(0.0, 0.0, 1.0));
+		points.push_back(v3(1.3, 5.0, 1.0));
 		drawFan(obj, points, textures); points.clear();
 	}
 
