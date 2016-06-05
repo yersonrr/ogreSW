@@ -104,71 +104,51 @@ public:
 	}
 
 	void drawRightWing(ManualObject* obj) {
-		std::vector<v3> points;
-		std::vector<v2> textures;
-		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
-		
-		// upper side
-		points.push_back(v3(0.0, 0.0, 0.0));
-		points.push_back(v3(2.0, 0.0, 0.0));
-		points.push_back(v3(0.7, 5.0, 0.0));
-		points.push_back(v3(0.0, 5.0, 0.0));
-		points.push_back(v3(0.0, 0.0, 0.0));
-		drawFan(obj, points, textures); points.clear();
-
-		// lower side
-		points.push_back(v3(0.0, 0.0, 1.0));
-		points.push_back(v3(2.0, 0.0, 1.0));
-		points.push_back(v3(0.7, 5.0, 1.0));
-		points.push_back(v3(0.0, 5.0, 1.0));
-		points.push_back(v3(0.0, 0.0, 1.0));
-		drawFan(obj, points, textures); points.clear();
+		v3 arr[] = {v3(0.0, 0.0, 0.0), v3(2.0, 0.0, 0.0), v3(0.7, 5.0, 0.0), v3(0.0, 5.0, 0.0), v3(0.0, 0.0, 0.0)};
+		drawWing(obj, arr);
 	}
 
 	void drawLeftWing(ManualObject* obj) {
+		v3 arr[] = {v3(0.0, 0.0, 0.0), v3(2.0, 0.0, 0.0), v3(2.0, 5.0, 0.0), v3(1.3, 5.0, 0.0), v3(0.0, 0.0, 0.0)};
+		drawWing(obj, arr);
+	}
+
+	void drawWing(ManualObject* obj, v3 arr[]) {
 		std::vector<v3> points;
 		std::vector<v2> textures;
 		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
-		
-		// upper side
-		points.push_back(v3(0.0, 0.0, 0.0));
-		points.push_back(v3(2.0, 0.0, 0.0));
-		points.push_back(v3(2.0, 5.0, 0.0));
-		points.push_back(v3(1.3, 5.0, 0.0));
-		points.push_back(v3(0.0, 0.0, 0.0));
-		drawFan(obj, points, textures); points.clear();
 
 		// lower side
-		points.push_back(v3(0.0, 0.0, 1.0));
-		points.push_back(v3(2.0, 0.0, 1.0));
-		points.push_back(v3(2.0, 5.0, 1.0));
-		points.push_back(v3(1.3, 5.0, 1.0));
-		points.push_back(v3(0.0, 0.0, 1.0));
+		for (int i=0; i<5; i++) points.push_back(arr[i]);
+		drawFan(obj, points, textures);
+
+		// upper side
+		for (int i=0; i<5; i++) points[i].z = 1.0;
 		drawFan(obj, points, textures); points.clear();
 
 		// border
-		points.push_back(v3(0.0, 0.0, 0.0));
-		points.push_back(v3(2.0, 0.0, 0.0));
-		points.push_back(v3(2.0, 0.0, 1.0));
-		points.push_back(v3(0.0, 0.0, 1.0));
+		points.push_back(arr[0]);
+		points.push_back(arr[1]);
+		points.push_back(arr[1] + v3(0.0, 0.0, 1.0));
+		points.push_back(arr[0] + v3(0.0, 0.0, 1.0));
 		drawFan(obj, points, textures); points.clear();
 
-		points.push_back(v3(2.0, 0.0, 0.0));
-		points.push_back(v3(2.0, 5.0, 0.0));
-		points.push_back(v3(2.0, 5.0, 1.0));
-		points.push_back(v3(2.0, 0.0, 1.0));
+		points.push_back(arr[1]);
+		points.push_back(arr[2]);
+		points.push_back(arr[2] + v3(0.0, 0.0, 1.0));
+		points.push_back(arr[1] + v3(0.0, 0.0, 1.0));
 		drawFan(obj, points, textures); points.clear();
 
-		points.push_back(v3(2.0, 5.0, 0.0));
-		points.push_back(v3(1.3, 5.0, 0.0));
-		points.push_back(v3(1.3, 5.0, 1.0));
-		points.push_back(v3(2.0, 5.0, 1.0));
+		points.push_back(arr[2]);
+		points.push_back(arr[3]);
+		points.push_back(arr[3] + v3(0.0, 0.0, 1.0));
+		points.push_back(arr[2] + v3(0.0, 0.0, 1.0));
 		drawFan(obj, points, textures); points.clear();
 
-		points.push_back(v3(1.3, 5.0, 0.0));
-		points.push_back(v3(0.0, 0.0, 0.0));
-		points.push_back(v3(0.0, 0.0, 1.0));
-		points.push_back(v3(1.3, 5.0, 1.0));
+		points.push_back(arr[3]);
+		points.push_back(arr[0]);
+		points.push_back(arr[0] + v3(0.0, 0.0, 1.0));
+		points.push_back(arr[3] + v3(0.0, 0.0, 1.0));
 		drawFan(obj, points, textures); points.clear();
 	}
 
@@ -182,7 +162,7 @@ public:
 		wing->pitch(Degree(degrees[1]));
 		wing->roll(Degree(degrees[2]));
 		wing->setPosition(position);
-		wing->setScale(2*wing_size, wing_size, wing_size);
+		wing->setScale(2*wing_size, wing_size, wing_size/3);
 		wing->attachObject(obj);
 	}
 
@@ -201,13 +181,19 @@ public:
 		
 		//SceneNode* upper_wings = back->createChildSceneNode();
 
-		SceneNode* left_wing = back->createChildSceneNode();
+		SceneNode* left_wing1 = back->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
-		createWing(manager, left_wing, std::string("ship_left_wing"), wing_size, left_degrees, v3(3.35, 0.0, 0.0));
+		createWing(manager, left_wing1, std::string("ship_left_wing1"), wing_size, left_degrees, v3(3.35, 0.0, 0.0));
+
+		SceneNode* left_wing2 = back->createChildSceneNode();
+		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(2.35, 0.0, 0.0));
 		
-		SceneNode* right_wing = back->createChildSceneNode();
+		SceneNode* right_wing1 = back->createChildSceneNode();
 		float right_degrees[] = {180.0, -90.0, -90.0};
-		createWing(manager, right_wing, std::string("ship_right_wing"), wing_size, right_degrees, v3(-3.35, 0.0, 8.0));
+		createWing(manager, right_wing1, std::string("ship_right_wing1"), wing_size, right_degrees, v3(-3.35, 0.0, 8.0));
+
+		SceneNode* right_wing2 = back->createChildSceneNode();
+		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-4.35, 0.0, 8.0));
 	}
 
 	void createScene()
