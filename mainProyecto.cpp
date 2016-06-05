@@ -118,7 +118,7 @@ public:
 		wing->pitch(Degree(degrees[1]));
 		wing->roll(Degree(degrees[2]));
 		wing->setPosition(position);
-		wing->setScale(2*wing_size, wing_size, wing_size/3);
+		wing->setScale(2*wing_size, wing_size, wing_size/4);
 		wing->attachObject(obj);
 	}
 
@@ -140,14 +140,14 @@ public:
 		createWing(manager, left_wing1, std::string("ship_left_wing1"), wing_size, left_degrees, v3(3.35, 0.0, 0.0));
 
 		SceneNode* left_wing2 = back->createChildSceneNode();
-		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(2.35, 0.0, 0.0));
+		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(3.35, -1.0, 0.0));
 		
 		SceneNode* right_wing1 = back->createChildSceneNode();
 		float right_degrees[] = {180.0, -90.0, -90.0};
 		createWing(manager, right_wing1, std::string("ship_right_wing1"), wing_size, right_degrees, v3(-3.35, 0.0, 8.0));
 
 		SceneNode* right_wing2 = back->createChildSceneNode();
-		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-4.35, 0.0, 8.0));
+		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-3.35, -1.0, 8.0));
 	}
 
 	void createScene()
