@@ -1,0 +1,121 @@
+material matPropio01
+{
+	technique
+	{
+		pass
+		{
+			lighting on
+
+			ambient 1.0 1.0 1.0 1
+			diffuse 1.0 1.0 1.0 1
+			emissive 0 0 0 1
+
+			texture_unit{
+				texture turret_texture01.jpg
+				rotate_anim 0.1
+				scale 0.2 0.2
+			}
+		}
+	}
+}
+
+material matPropio02
+{
+
+	technique
+	{
+
+		pass
+		{
+			lighting on
+
+			ambient 1.0 1.0 1.0 1
+			diffuse 1.0 1.0 1.0 1
+			emissive 0 0 0 1
+
+			texture_unit{
+				texture turret_texture05.jpg
+				scale 0.2 0.2
+			}
+
+		}
+
+	}
+
+}
+
+material matPropio03
+{
+
+	technique
+	{
+
+		pass
+		{
+			lighting on
+
+			ambient 1.0 1.0 1.0 1
+			diffuse 1.0 1.0 1.0 1
+			emissive 0 0 0 1
+
+			texture_unit{
+				texture turret_texture06.jpg
+				scale 0.5 0.5
+			}
+
+		}
+
+	}
+
+}
+
+material matPropio04
+{
+
+	technique
+	{
+
+		pass
+		{
+			lighting on
+
+			ambient 1.0 1.0 1.0 1
+			diffuse 1.0 1.0 1.0 1
+			emissive 0 0 0 1
+
+			texture_unit{
+				texture turret_texture05.jpg
+				scale 2 2
+			}
+
+		}
+
+	}
+
+}
+
+material matPropio05
+{
+
+	technique
+	{
+
+		pass
+		{
+			lighting on
+
+			ambient 1.0 1.0 1.0 1
+			diffuse 1.0 1.0 1.0 1
+			emissive 0 0 0 1
+
+			texture_unit{
+				texture space02.jpg
+				rotate_anim 0.008
+				scale 5 5
+			}
+
+		}
+
+	}
+
+}
