@@ -5,7 +5,7 @@
 
 #define v3 Ogre::Vector3
 #define v2 Ogre::Vector2
-float pitch_degree[4] = {30.0, -30.0, 30.0, -30.0};
+float wing_degree[4] = {30.0, -30.0, 30.0, -30.0};
 
 
 float xlaser1 = 0, zlaser1 = 5;
@@ -351,20 +351,20 @@ public:
 		SceneNode* left_wing1 = ship->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
 		createWing(manager, left_wing1, std::string("ship_left_wing1"), wing_size, left_degrees, v3(wing_proximity, 0.0, 0.0));
-		left_wing1->pitch(Degree(pitch_degree[0]));
+		left_wing1->pitch(Degree(wing_degree[0]));
 
 		SceneNode* left_wing2 = ship->createChildSceneNode();
 		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(wing_proximity, -1.0, 0.0));
-		left_wing2->pitch(Degree(pitch_degree[1]));
+		left_wing2->pitch(Degree(wing_degree[1]));
 		
 		SceneNode* right_wing1 = ship->createChildSceneNode();
 		float right_degrees[] = {180.0, -90.0, -90.0};
 		createWing(manager, right_wing1, std::string("ship_right_wing1"), wing_size, right_degrees, v3(-wing_proximity, 0.0, 8.0));
-		right_wing1->pitch(Degree(pitch_degree[2]));
+		right_wing1->pitch(Degree(wing_degree[2]));
 
 		SceneNode* right_wing2 = ship->createChildSceneNode();
 		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-wing_proximity, -1.0, 8.0));
-		right_wing2->pitch(Degree(pitch_degree[3]));
+		right_wing2->pitch(Degree(wing_degree[3]));
 	}
 
 	void createScene()
@@ -630,7 +630,7 @@ public:
 
 		//SPACE
 		mSceneMgr->setSkyDome(true, "matPropio05", 5, 8);
-
+		
 		drawShip(mSceneMgr);
 	}
 };
