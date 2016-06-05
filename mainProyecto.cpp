@@ -1,6 +1,7 @@
 #include "Ogre\ExampleApplication.h"
 #include "OGRE\OgreManualObject.h"
 #include <vector>
+#include <string>
 
 #define v3 Ogre::Vector3
 #define v2 Ogre::Vector2
@@ -22,7 +23,7 @@ public:
 		obj->begin("Examples/Rockwall", RenderOperation::OT_TRIANGLE_STRIP);
 			for(int i=0; i<points.size(); i++) {
 				obj->position(points[i]);
-				//obj->textureCoord(textures_coords[i]);
+				obj->textureCoord(textures_coords[i]);
 				obj->normal(points[i]);
 			}
         obj->end();
@@ -102,7 +103,21 @@ public:
 		drawFan(obj, points, textures); points.clear();
 	}
 
-	void drawShipWing(ManualObject* obj) {
+	void drawRightWing(ManualObject* obj) {
+		std::vector<v3> points;
+		std::vector<v2> textures;
+		
+		points.push_back(v3(0.0, 0.0, 0.0));
+		points.push_back(v3(2.0, 0.0, 0.0));
+		points.push_back(v3(0.7, 5.0, 0.0));
+		points.push_back(v3(0.0, 5.0, 0.0));
+		points.push_back(v3(0.0, 0.0, 0.0));
+
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+		drawFan(obj, points, textures); points.clear();
+	}
+
+	void drawLeftWing(ManualObject* obj) {
 		std::vector<v3> points;
 		std::vector<v2> textures;
 		
@@ -114,6 +129,44 @@ public:
 
 		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
 		drawFan(obj, points, textures); points.clear();
+	}
+
+	void createWing(SceneManager* manager, SceneNode* wing, std::string name, float wing_size, float degrees[], v3 position) {
+		ManualObject* obj = manager->createManualObject(name);
+		if (name == std::string("ship_left_wing"))
+			drawLeftWing(obj);
+		else if (name == std::string("ship_right_wing"))
+			drawRightWing(obj);
+		wing->yaw(Degree(degrees[0]));
+		wing->pitch(Degree(degrees[1]));
+		wing->roll(Degree(degrees[2]));
+		wing->setPosition(position);
+		wing->setScale(2*wing_size, wing_size, wing_size);
+		wing->attachObject(obj);
+	}
+
+	void drawShip(SceneManager* manager) {
+		float ship_size = 1.5,
+			  wing_size = 2.0;
+
+		// Manual object for the body of the x-wing ship
+		ManualObject* obj = manager->createManualObject("ship_back");
+		drawShipBack(obj, 1.5);
+
+		SceneNode* back = manager->getRootSceneNode()->createChildSceneNode();
+		back->setScale(ship_size, ship_size, ship_size);
+		back->yaw(Degree(180.0));
+		back->attachObject(obj);
+		
+		//SceneNode* upper_wings = back->createChildSceneNode();
+
+		SceneNode* left_wing = back->createChildSceneNode();
+		float left_degrees[] = {180.0, -90.0, 90.0};
+		createWing(manager, left_wing, std::string("ship_left_wing"), wing_size, left_degrees, v3(3.35, 0.0, 0.0));
+		
+		SceneNode* right_wing = back->createChildSceneNode();
+		float right_degrees[] = {180.0, -90.0, -90.0};
+		createWing(manager, right_wing, std::string("ship_right_wing"), wing_size, right_degrees, v3(-3.35, 0.0, 8.0));
 	}
 
 	void createScene()
@@ -179,30 +232,9 @@ public:
 		torreta04->setScale(0.5, 3, 0.5);
 		torreta04->setPosition(22, -8, -883.5);
 
-		// Manual object for the body of the x-wing ship
-		//ManualObject* obj = mSceneMgr->createManualObject("cube");
-        //drawCube(obj, 10.0, 5.0, 15.0);
-		ManualObject* obj = mSceneMgr->createManualObject("ship_back");
-		drawShipBack(obj, 1.5);
-		//drawShipTop(obj);
-
-		float ship_size = 1.5;
-
-		SceneNode* back = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-		back->setScale(ship_size, ship_size, ship_size);
-		back->yaw(Degree(180.0));
-		back->attachObject(obj);
-
-		obj = mSceneMgr->createManualObject("ship_right_wing");
-		drawShipWing(obj);
-		SceneNode* wing = back->createChildSceneNode();
-		wing->yaw(Degree(180.0));
-		wing->roll(Degree(90.0));
-		wing->pitch(Degree(90.0));
-		wing->attachObject(obj);
+		drawShip(mSceneMgr);
 	}
 };
-
 
 int main (void)
 {
