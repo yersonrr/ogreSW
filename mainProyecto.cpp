@@ -11,7 +11,6 @@ class Example1 : public ExampleApplication
 public:
 
 	void createCamera() {
-
 		mCamera = mSceneMgr->createCamera("MyCamera1");
 		mCamera->setPosition(0,10,50);
 		mCamera->lookAt(0,0,-50);
@@ -22,9 +21,9 @@ public:
 	void drawPlane(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords) {
 		obj->begin("Examples/Rockwall", RenderOperation::OT_TRIANGLE_STRIP);
 			for(int i=0; i<points.size(); i++) {
-				obj->position(points[i].x, points[i].y, points[i].z);
-				obj->textureCoord(textures_coords[i].x, textures_coords[i].y);
-				obj->normal(points[i].x, points[i].y, points[i].z);
+				obj->position(points[i]);
+				//obj->textureCoord(textures_coords[i]);
+				obj->normal(points[i]);
 			}
         obj->end();
 	}
@@ -61,6 +60,60 @@ public:
 		points.push_back(v3(x, -y, z)); points.push_back(v3(x, -y, -z)); points.push_back(v3(x, y, z)); points.push_back(v3(x, y, -z));
 		drawPlane(obj, points, textures);
 		points.clear();
+	}
+
+	void drawFan(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords) {
+		obj->begin("Examples/Rockwall", RenderOperation::OT_TRIANGLE_FAN);
+			for (int i=0; i<points.size(); i++) {
+				obj->position(points[i]);
+				int u = (i+2 >= points.size()) ? 1:i+2;
+				int v = (i+1 >= points.size()) ? points.size()-1:i+1;
+				Ogre::Vector3 dir0 = points[u] - points[0];
+				Ogre::Vector3 dir1 = points[0] - points[v];
+				Ogre::Vector3 normal = dir1.crossProduct(dir0).normalisedCopy();
+				obj->normal(normal);
+				//obj->normal(points[i]);
+				//obj->textureCoord(textures_coords[i]);
+			}
+			//for (int i=0; i<points.size()-2; i++)
+				//obj->triangle(0, i+1, i+2);
+			//obj->triangle(0, points.size()-1, 1);
+        obj->end();
+	}
+
+	void drawShipBack(ManualObject* obj, float mid_ratio) {
+		std::vector<v3> points;
+		std::vector<v2> textures;
+		
+		//back (octagon in center 0.0)
+		points.push_back(v3(0.0, 0.0, 0.0));  // center
+
+		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0, 0.0));
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, -1 * mid_ratio, 0.0));
+		points.push_back(v3(1.0 * mid_ratio,			 -(1.0 + sqrt(2)) * mid_ratio, 0.0));
+		points.push_back(v3(-1.0*mid_ratio,				 -(1.0 + sqrt(2)) * mid_ratio, 0.0));
+		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 -1 * mid_ratio, 0.0));
+		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 1.0, 0.0));
+		points.push_back(v3(-1.0*mid_ratio,				 1.0 + sqrt(2), 0.0));
+		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
+		
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+		drawFan(obj, points, textures); points.clear();
+	}
+
+	void drawShipWing(ManualObject* obj) {
+		std::vector<v3> points;
+		std::vector<v2> textures;
+		
+		points.push_back(v3(0.0, 0.0, 0.0));
+		points.push_back(v3(2.0, 0.0, 0.0));
+		points.push_back(v3(2.0, 5.0, 0.0));
+		points.push_back(v3(1.3, 5.0, 0.0));
+		points.push_back(v3(0.0, 0.0, 0.0));
+
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+		drawFan(obj, points, textures); points.clear();
 	}
 
 	void createScene()
@@ -127,9 +180,26 @@ public:
 		torreta04->setPosition(22, -8, -883.5);
 
 		// Manual object for the body of the x-wing ship
-		ManualObject* cube = mSceneMgr->createManualObject("cube");
-        drawCube(cube, 10.0, 5.0, 15.0);
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(cube);
+		//ManualObject* obj = mSceneMgr->createManualObject("cube");
+        //drawCube(obj, 10.0, 5.0, 15.0);
+		ManualObject* obj = mSceneMgr->createManualObject("ship_back");
+		drawShipBack(obj, 1.5);
+		//drawShipTop(obj);
+
+		float ship_size = 1.5;
+
+		SceneNode* back = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		back->setScale(ship_size, ship_size, ship_size);
+		back->yaw(Degree(180.0));
+		back->attachObject(obj);
+
+		obj = mSceneMgr->createManualObject("ship_right_wing");
+		drawShipWing(obj);
+		SceneNode* wing = back->createChildSceneNode();
+		wing->yaw(Degree(180.0));
+		wing->roll(Degree(90.0));
+		wing->pitch(Degree(90.0));
+		wing->attachObject(obj);
 	}
 };
 
