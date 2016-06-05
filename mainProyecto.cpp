@@ -5,17 +5,16 @@
 
 #define v3 Ogre::Vector3
 #define v2 Ogre::Vector2
-float wing_degree[4] = {30.0, -30.0, 30.0, -30.0};
+float wing_degree[4] = {30.0, -30.0, 30.0, -30.0},
+	 xlaser1 = 0, 
+	 zlaser1 = 5;
+v3 ship_position(0, 0, 0);
 
-
-float xlaser1 = 0, zlaser1 = 5;
-Ogre::AnimationState* AnimationLaser01;
 
 class FrameListenerClase : public Ogre::FrameListener{
 
 private:
-	Ogre::SceneNode* _nodoF01;
-	Ogre::Entity* _entOgre;
+	Ogre::SceneNode* _node;
 	Ogre::AnimationState* _anim;
 	OIS::InputManager* _man;
 	OIS::Keyboard* _key;
@@ -23,8 +22,7 @@ private:
 	Ogre::Camera* _cam;
 
 public:
-	FrameListenerClase(Ogre::SceneNode* nodo01,Ogre::Entity* entOgre01 ,Ogre::Camera* cam, RenderWindow* win){
-
+	FrameListenerClase(Ogre::SceneNode* node, Ogre::Camera* cam, RenderWindow* win){
 		//Configuracion para captura de teclado y mouse 
 		size_t windowHnd = 0;
 		std::stringstream windowHndStr;
@@ -39,12 +37,7 @@ public:
 		_key = static_cast<OIS::Keyboard*>(_man->createInputObject(OIS::OISKeyboard,false));
 		_mouse = static_cast<OIS::Mouse*>(_man->createInputObject(OIS::OISMouse,false));
 		_cam = cam;
-		_nodoF01 = nodo01;
-		_entOgre = entOgre01;
-
-		_anim = _entOgre->getAnimationState("Dance");
-		_anim->setEnabled(true);
-		_anim->setLoop(true);
+		_node = node;
 	}
 
 
@@ -66,44 +59,62 @@ public:
 		if (_key->isKeyDown(OIS::KC_ESCAPE))
 			return false;
 
-		if(_key->isKeyDown(OIS::KC_W))
+		if(_key->isKeyDown(OIS::KC_W)) {
 			tcam += Ogre::Vector3(0,0,-10);
+			tmov += Ogre::Vector3(0,0,-10);
+		}
 		
-		if(_key->isKeyDown(OIS::KC_S))
+		if(_key->isKeyDown(OIS::KC_S)) {
 			tcam += Ogre::Vector3(0,0,10);
+			tmov += Ogre::Vector3(0,0,10);
+		}
 
-		if(_key->isKeyDown(OIS::KC_A))
+		if(_key->isKeyDown(OIS::KC_A)) {
 			tcam += Ogre::Vector3(-10,0,0);
+			tmov += Ogre::Vector3(-10,0,0);
+		}
 		
-		if(_key->isKeyDown(OIS::KC_D))
+		if(_key->isKeyDown(OIS::KC_D)) {
 			tcam += Ogre::Vector3(10,0,0);
-
+			tmov += Ogre::Vector3(10,0,0);
+		}
 
 		//camara control
-		float rotX = _mouse->getMouseState().X.rel * evt.timeSinceLastFrame*-1;
-		float rotY = _mouse->getMouseState().Y.rel * evt.timeSinceLastFrame*-1;
-		_cam->yaw(Ogre::Radian(rotX));
-		_cam->pitch(Ogre::Radian(rotY));
 		_cam->moveRelative(tcam*movSpeed*evt.timeSinceLastFrame);
-		_nodoF01->translate(tmov * evt.timeSinceLastFrame);
-		_anim->addTime(evt.timeSinceLastFrame*3);
-
-		AnimationLaser01->addTime(evt.timeSinceLastFrame);
-		
+		_node->translate(tmov * evt.timeSinceLastFrame);
+		ship_position += tmov;
+		_node->setPosition(ship_position + tmov);
 		return true;
 	}
 };
 
+
 class Example1 : public ExampleApplication
 {
-
 public:
+	Ogre::FrameListener* FrameListener01;
+	SceneNode* ship;
+
+	Example1(){
+		FrameListener01 = NULL;
+	}
+
+	~Example1(){
+		if(FrameListener01){
+			delete FrameListener01;
+		}
+	}
 
 	void createCamera() {
 		mCamera = mSceneMgr->createCamera("MyCamera1");
 		mCamera->setPosition(0,10,50);
 		mCamera->lookAt(0,0,-50);
 		mCamera->setNearClipDistance(5);
+	}
+
+	void createFrameListener(){
+		FrameListener01 = new FrameListenerClase(ship, mCamera, mWindow);
+		mRoot->addFrameListener(FrameListener01);
 	}
 
 	void drawFan(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords, bool inverted_normal = false) {
@@ -326,7 +337,8 @@ public:
 			  mid_ratio = 0.2,
 			  mid_length = 11.0;
 
-		SceneNode* ship = manager->getRootSceneNode()->createChildSceneNode();
+		ship = manager->getRootSceneNode()->createChildSceneNode();
+		ship->setPosition(ship_position);
 		ship->setScale(ship_size, ship_size, ship_size);
 		ship->yaw(Degree(180.0));
 
@@ -486,10 +498,6 @@ public:
 		key = Laser01track->createNodeKeyFrame(4.0);
 		key->setTranslate(Vector3(30, 30, 0));
 		key->setScale(Vector3(1.2, 0.16, 1.2));
-
-		AnimationLaser01 = mSceneMgr->createAnimationState("AnimLaser01");
-		AnimationLaser01->setEnabled(true);
-		AnimationLaser01->setLoop(true);
 
 		// Torreta Numero 2
 		Ogre::Entity* entTorreta02 = mSceneMgr->createEntity("usb_cubomod01.mesh");
