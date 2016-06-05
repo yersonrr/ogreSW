@@ -8,7 +8,10 @@
 float wing_degree[4] = {30.0, -30.0, 30.0, -30.0},
 	 xlaser1 = 0, 
 	 zlaser1 = 5;
-v3 ship_position(0, 0, 0);
+v3 ship_position(0, 0, 0),
+   cam_position(0, 10, 50);
+
+SceneNode * wing[4];
 
 
 class FrameListenerClase : public Ogre::FrameListener{
@@ -51,39 +54,47 @@ public:
 		_key->capture();
 		_mouse->capture();
 
-		float movSpeed=10.0f;
+		float speed_factor = 0.1f;
 		Ogre::Vector3 tmov(0,0,0);
-		Ogre::Vector3 tcam(0,0,0);
 
 		//Camara
 		if (_key->isKeyDown(OIS::KC_ESCAPE))
 			return false;
 
 		if(_key->isKeyDown(OIS::KC_W)) {
-			tcam += Ogre::Vector3(0,0,-10);
 			tmov += Ogre::Vector3(0,0,-10);
 		}
 		
-		if(_key->isKeyDown(OIS::KC_S)) {
-			tcam += Ogre::Vector3(0,0,10);
+		/*if(_key->isKeyDown(OIS::KC_S)) {
 			tmov += Ogre::Vector3(0,0,10);
-		}
+		}*/
 
 		if(_key->isKeyDown(OIS::KC_A)) {
-			tcam += Ogre::Vector3(-10,0,0);
-			tmov += Ogre::Vector3(-10,0,0);
+			if (_node->getPosition().x > -20)
+				tmov += Ogre::Vector3(-10,0,0);
 		}
 		
 		if(_key->isKeyDown(OIS::KC_D)) {
-			tcam += Ogre::Vector3(10,0,0);
-			tmov += Ogre::Vector3(10,0,0);
+			if (_node->getPosition().x < 20)
+				tmov += Ogre::Vector3(10,0,0);
+		}
+
+		if(_key->isKeyDown(OIS::KC_E)) {
+			wing_degree[0] += 10.0;
+			wing_degree[1] -= 10.0;
+			wing_degree[2] += 10.0;
+			wing_degree[3] -= 10.0;
+			wing[0]->pitch(Degree(wing_degree[0]));
+			wing[1]->pitch(Degree(wing_degree[1]));
+			wing[2]->pitch(Degree(wing_degree[2]));
+			wing[3]->pitch(Degree(wing_degree[3]));
 		}
 
 		//camara control
-		_cam->moveRelative(tcam*movSpeed*evt.timeSinceLastFrame);
-		_node->translate(tmov * evt.timeSinceLastFrame);
-		ship_position += tmov;
-		_node->setPosition(ship_position + tmov);
+		cam_position += (tmov * speed_factor);
+		_cam->setPosition(cam_position);
+		ship_position += (tmov * speed_factor);
+		_node->setPosition(ship_position);
 		return true;
 	}
 };
@@ -107,7 +118,7 @@ public:
 
 	void createCamera() {
 		mCamera = mSceneMgr->createCamera("MyCamera1");
-		mCamera->setPosition(0,10,50);
+		mCamera->setPosition(cam_position);
 		mCamera->lookAt(0,0,-50);
 		mCamera->setNearClipDistance(5);
 	}
@@ -360,23 +371,23 @@ public:
 		SceneNode* lower_case = ship->createChildSceneNode();
 		drawCase(manager, lower_case, std::string("lower_case"), start_length, mid_ratio, mid_length);
 
-		SceneNode* left_wing1 = ship->createChildSceneNode();
+		wing[0] = ship->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
-		createWing(manager, left_wing1, std::string("ship_left_wing1"), wing_size, left_degrees, v3(wing_proximity, 0.0, 0.0));
-		left_wing1->pitch(Degree(wing_degree[0]));
+		createWing(manager, wing[0], std::string("ship_left_wing1"), wing_size, left_degrees, v3(wing_proximity, 0.0, 0.0));
+		wing[0]->pitch(Degree(wing_degree[0]));
 
-		SceneNode* left_wing2 = ship->createChildSceneNode();
-		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(wing_proximity, -1.0, 0.0));
-		left_wing2->pitch(Degree(wing_degree[1]));
+		wing[1] = ship->createChildSceneNode();
+		createWing(manager, wing[1], std::string("ship_left_wing2"), wing_size, left_degrees, v3(wing_proximity, -1.0, 0.0));
+		wing[1]->pitch(Degree(wing_degree[1]));
 		
-		SceneNode* right_wing1 = ship->createChildSceneNode();
+		wing[2] = ship->createChildSceneNode();
 		float right_degrees[] = {180.0, -90.0, -90.0};
-		createWing(manager, right_wing1, std::string("ship_right_wing1"), wing_size, right_degrees, v3(-wing_proximity, 0.0, 8.0));
-		right_wing1->pitch(Degree(wing_degree[2]));
+		createWing(manager, wing[2], std::string("ship_right_wing1"), wing_size, right_degrees, v3(-wing_proximity, 0.0, 8.0));
+		wing[2]->pitch(Degree(wing_degree[2]));
 
-		SceneNode* right_wing2 = ship->createChildSceneNode();
-		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-wing_proximity, -1.0, 8.0));
-		right_wing2->pitch(Degree(wing_degree[3]));
+		wing[3] = ship->createChildSceneNode();
+		createWing(manager, wing[3], std::string("ship_right_wing2"), wing_size, right_degrees, v3(-wing_proximity, -1.0, 8.0));
+		wing[3]->pitch(Degree(wing_degree[3]));
 	}
 
 	void createScene()
