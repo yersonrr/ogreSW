@@ -1,5 +1,9 @@
 #include "Ogre\ExampleApplication.h"
+#include "OGRE\OgreManualObject.h"
+#include <vector>
 
+#define v3 Ogre::Vector3
+#define v2 Ogre::Vector2
 
 class Example1 : public ExampleApplication
 {
@@ -15,6 +19,50 @@ public:
 
 	}
 
+	void drawPlane(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords) {
+		obj->begin("Examples/Rockwall", RenderOperation::OT_TRIANGLE_STRIP);
+			for(int i=0; i<points.size(); i++) {
+				obj->position(points[i].x, points[i].y, points[i].z);
+				obj->textureCoord(textures_coords[i].x, textures_coords[i].y);
+				obj->normal(points[i].x, points[i].y, points[i].z);
+			}
+        obj->end();
+	}
+
+	void drawCube(ManualObject* obj, float x, float y, float z) {
+		// front
+		std::vector<v3> points;
+		std::vector<v2> textures;
+		points.push_back(v3(-x, y, -z)); points.push_back(v3(x, y, -z)); points.push_back(v3(-x, -y, -z)); points.push_back(v3(x, -y, -z));
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+		drawPlane(obj, points, textures);
+		points.clear();
+		
+		//back
+		points.push_back(v3(-x, -y, z)); points.push_back(v3(x, -y, z)); points.push_back(v3(-x, y, z)); points.push_back(v3(x, y, z));
+		drawPlane(obj, points, textures); points.clear();
+
+		//top
+		points.push_back(v3(-x, y, z)); points.push_back(v3(x, y, z)); points.push_back(v3(-x, y, -z)); points.push_back(v3(x, y, -z));
+		drawPlane(obj, points, textures);
+		points.clear();
+
+		//bottom
+		points.push_back(v3(-x, -y, -z)); points.push_back(v3(x, -y, -z)); points.push_back(v3(-x, -y, z)); points.push_back(v3(x, -y, z));
+		drawPlane(obj, points, textures);
+		points.clear();
+
+		//left
+		points.push_back(v3(-x, y, z)); points.push_back(v3(-x, y, -z)); points.push_back(v3(-x, -y, z)); points.push_back(v3(-x, -y, -z));
+		drawPlane(obj, points, textures);
+		points.clear();
+
+		//right
+		points.push_back(v3(x, -y, z)); points.push_back(v3(x, -y, -z)); points.push_back(v3(x, y, z)); points.push_back(v3(x, y, -z));
+		drawPlane(obj, points, textures);
+		points.clear();
+	}
+
 	void createScene()
 	{
 		Ogre::SceneNode* torreta01;
@@ -27,7 +75,7 @@ public:
 		
 
 		Ogre::Entity* ent01 = mSceneMgr->createEntity("MyEntity1","ejes01.mesh");
-		Ogre::SceneNode* node01 = mSceneMgr->createSceneNode("Node01");
+		Ogre::SceneNode* node01 = mSceneMgr->createSceneNode("node01");
 		mSceneMgr->getRootSceneNode()->addChild(node01);
 		node01->attachObject(ent01);
 		
@@ -78,8 +126,11 @@ public:
 		torreta04->setScale(0.5, 3, 0.5);
 		torreta04->setPosition(22, -8, -883.5);
 
+		// Manual object for the body of the x-wing ship
+		ManualObject* cube = mSceneMgr->createManualObject("cube");
+        drawCube(cube, 10.0, 5.0, 15.0);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(cube);
 	}
-
 };
 
 
