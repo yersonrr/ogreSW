@@ -52,6 +52,13 @@ public:
 		OIS::InputManager::destroyInputSystem(_man);
 	}
 
+	void animation(){
+		xlaser1 += 0.03;
+		zlaser1 += 0.03;
+
+		animation();
+	}
+
 	bool frameStarted(const Ogre::FrameEvent &evt){
 		_key->capture();
 		_mouse->capture();
@@ -86,8 +93,7 @@ public:
 		_nodoF01->translate(tmov * evt.timeSinceLastFrame);
 		_anim->addTime(evt.timeSinceLastFrame*3);
 
-		AnimationLaser01->addTime(evt.timeSinceLastFrame);
-		
+		animation();
 		return true;
 	}
 };
@@ -451,40 +457,9 @@ public:
 		torreta01->addChild(laser1);
 		laser1->attachObject(entLaser);
 		laser1->setScale(1.2, 0.16, 1.2);
-		laser1->setPosition(0, 2.8, 5);
+		laser1->setPosition(xlaser1, 2.8, zlaser1);
 		laser1->pitch(Degree(90));
 	
-		float duration = 4.0;
-		Ogre::Animation* animationLaser01 = mSceneMgr->createAnimation("AnimLaser01",duration);
-		animationLaser01->setInterpolationMode(Animation::IM_SPLINE);
-		
-		Ogre::NodeAnimationTrack* Laser01track = animationLaser01->createNodeTrack(0, laser1);
-		Ogre::TransformKeyFrame* key;
-		
-		key = Laser01track->createNodeKeyFrame(0.0);
-		key->setTranslate(Vector3( 30, 30, 0));
-		key->setScale(Vector3(1.2, 0.16, 1.2));
-
-		key = Laser01track->createNodeKeyFrame(1.0);
-		key->setTranslate(Vector3(30, 30, 35));
-		key->setScale(Vector3(1.2, 0.16, 1.2));
-
-		key = Laser01track->createNodeKeyFrame(2.0);
-		key->setTranslate(Vector3(30, 30, 0));
-		key->setScale(Vector3(1.2, 0.16, 1.2));
-
-		key = Laser01track->createNodeKeyFrame(3.0);
-		key->setTranslate(Vector3(30, 30, -35));
-		key->setScale(Vector3(1.2, 0.16, 1.2));
-
-		key = Laser01track->createNodeKeyFrame(4.0);
-		key->setTranslate(Vector3(30, 30, 0));
-		key->setScale(Vector3(1.2, 0.16, 1.2));
-
-		AnimationLaser01 = mSceneMgr->createAnimationState("AnimLaser01");
-		AnimationLaser01->setEnabled(true);
-		AnimationLaser01->setLoop(true);
-
 		// Torreta Numero 2
 		Ogre::Entity* entTorreta02 = mSceneMgr->createEntity("usb_cubomod01.mesh");
 		torreta02 = mSceneMgr->createSceneNode("torreta02");
