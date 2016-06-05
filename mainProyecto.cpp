@@ -16,7 +16,6 @@ public:
 		mCamera->setPosition(0,10,50);
 		mCamera->lookAt(0,0,-50);
 		mCamera->setNearClipDistance(5);
-
 	}
 
 	void drawFan(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords, bool inverted_normal = false) {
@@ -54,13 +53,70 @@ public:
         obj->end();
 	}
 
+	void drawSides(SceneManager* manager, SceneNode* node, std::string name, float mid_ratio) {
+		ManualObject* obj = manager->createManualObject(name);
+		std::vector<v3> points;
+		std::vector<v2> textures;
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+
+		// left
+		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 1.0, 0.0));
+		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 1.0, 8.0));
+		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 -1.0, 8.0));
+		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 -1.0, 0.0));
+		drawFan(obj, points, textures, true); points.clear();
+
+		// right
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0, 0.0));
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0, 8.0));
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, -1.0, 8.0));
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, -1.0, 0.0));
+		drawFan(obj, points, textures); points.clear();
+
+		node->attachObject(obj);
+	}
+
+	void drawCase(SceneManager* manager, SceneNode* node, std::string name, float mid_ratio) {
+		ManualObject* obj = manager->createManualObject(name);
+		std::vector<v3> points;
+		std::vector<v2> textures;
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+		
+		// top
+		points.push_back(v3(-1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
+		points.push_back(v3(-1.0 * mid_ratio,			 1.0 + sqrt(2), 8.0));
+		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 8.0));
+		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
+		drawFan(obj, points, textures); points.clear();
+
+		// inclined right
+		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
+		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 8.0));
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0, 8.0));
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0, 0.0));
+		drawFan(obj, points, textures); points.clear();
+
+		// inclined left
+		points.push_back(v3(-1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
+		points.push_back(v3(-1.0 * mid_ratio,			 1.0 + sqrt(2), 8.0));
+		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 1.0, 8.0));
+		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 1.0, 0.0));
+		drawFan(obj, points, textures, true); points.clear();
+
+		node->attachObject(obj);
+
+		if (name.find("lower") != std::string::npos) {
+			node->roll(Degree(180.0));
+		}
+	}
+
 	void drawShipBack(ManualObject* obj, float mid_ratio) {
 		std::vector<v3> points;
 		std::vector<v2> textures;
+		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
 		
 		//back (octagon in center 0.0)
 		points.push_back(v3(0.0, 0.0, 0.0));  // center
-
 		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
 		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0, 0.0));
 		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, -1 * mid_ratio, 0.0));
@@ -70,8 +126,6 @@ public:
 		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 1.0, 0.0));
 		points.push_back(v3(-1.0*mid_ratio,				 1.0 + sqrt(2), 0.0));
 		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
-		
-		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
 		drawFan(obj, points, textures); points.clear();
 	}
 
@@ -97,7 +151,6 @@ public:
 		// upper side
 		for (int i=0; i<5; i++) points[i].z = 1.0;
 		drawFan(obj, points, textures); points.clear();
-
 
 		// border
 		points.push_back(arr[0]);
@@ -125,46 +178,56 @@ public:
 		drawFan(obj, points, textures); points.clear();
 	}
 
-	void createWing(SceneManager* manager, SceneNode* wing, std::string name, float wing_size, float degrees[], v3 position) {
+	void createWing(SceneManager* manager, SceneNode* node, std::string name, float wing_size, float degrees[], v3 position) {
 		ManualObject* obj = manager->createManualObject(name);
 		if (name.find("left") != std::string::npos)
 			drawLeftWing(obj);
 		else
 			drawRightWing(obj);
-		wing->yaw(Degree(degrees[0]));
-		wing->pitch(Degree(degrees[1]));
-		wing->roll(Degree(degrees[2]));
-		wing->setPosition(position);
-		wing->setScale(2*wing_size, wing_size, wing_size/4);
-		wing->attachObject(obj);
+		node->yaw(Degree(degrees[0]));
+		node->pitch(Degree(degrees[1]));
+		node->roll(Degree(degrees[2]));
+		node->setPosition(position);
+		node->setScale(2*wing_size, wing_size, wing_size/4);
+		node->attachObject(obj);
 	}
 
 	void drawShip(SceneManager* manager) {
-		float ship_size = 1.5,
+		float ship_size = 1.0,
 			  wing_size = 2.0;
 
-		// Manual object for the body of the x-wing ship
-		ManualObject* obj = manager->createManualObject("ship_back");
-		drawShipBack(obj, 1.5);
+		SceneNode* ship = manager->getRootSceneNode()->createChildSceneNode();
+		SceneNode* back = ship->createChildSceneNode();
+		ship->setScale(ship_size, ship_size, ship_size);
+		ship->yaw(Degree(180.0));
 
-		SceneNode* back = manager->getRootSceneNode()->createChildSceneNode();
-		back->setScale(ship_size, ship_size, ship_size);
-		back->yaw(Degree(180.0));
+		// Manual object for the x-wing ship
+		ManualObject* obj = manager->createManualObject("ship");
+		drawShipBack(obj, ship_size);
 		back->attachObject(obj);
+
+		SceneNode* sides = ship->createChildSceneNode();
+		drawSides(manager, sides, std::string("sides"), ship_size);
+
+		SceneNode* upper_case = ship->createChildSceneNode();
+		drawCase(manager, upper_case, std::string("upper_case"), ship_size);
+
+		SceneNode* lower_case = ship->createChildSceneNode();
+		drawCase(manager, lower_case, std::string("lower_case"), ship_size);
 
 		SceneNode* left_wing1 = back->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
-		createWing(manager, left_wing1, std::string("ship_left_wing1"), wing_size, left_degrees, v3(3.35, 0.0, 0.0));
+		createWing(manager, left_wing1, std::string("ship_left_wing1"), wing_size, left_degrees, v3(2.5, 0.0, 0.0));
 
 		SceneNode* left_wing2 = back->createChildSceneNode();
-		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(3.35, -1.0, 0.0));
+		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(2.5, -1.0, 0.0));
 		
 		SceneNode* right_wing1 = back->createChildSceneNode();
 		float right_degrees[] = {180.0, -90.0, -90.0};
-		createWing(manager, right_wing1, std::string("ship_right_wing1"), wing_size, right_degrees, v3(-3.35, 0.0, 8.0));
+		createWing(manager, right_wing1, std::string("ship_right_wing1"), wing_size, right_degrees, v3(-2.5, 0.0, 8.0));
 
 		SceneNode* right_wing2 = back->createChildSceneNode();
-		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-3.35, -1.0, 8.0));
+		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-2.5, -1.0, 8.0));
 	}
 
 	void createScene()
