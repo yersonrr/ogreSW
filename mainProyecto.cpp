@@ -19,18 +19,34 @@ public:
 
 	}
 
-	void drawFan(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords) {
+	void drawFan(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords, bool inverted_normal = false) {
 		obj->begin("Examples/Rockwall", RenderOperation::OT_TRIANGLE_FAN);
-			for (int i=0; i<points.size(); i++) {
-				obj->position(points[i]);
-				int u = (i+2 >= points.size()) ? 1:i+2;
-				int v = (i+1 >= points.size()) ? points.size()-1:i+1;
-				Ogre::Vector3 dir0 = points[u] - points[0];
-				Ogre::Vector3 dir1 = points[0] - points[v];
-				Ogre::Vector3 normal = dir1.crossProduct(dir0).normalisedCopy();
-				obj->normal(normal);
-				//obj->normal(points[i]);
-				//obj->textureCoord(textures_coords[i]);
+
+			if (inverted_normal) {
+				for (int i=points.size()-1; i>=0; i--) {
+					obj->position(points[i]);
+					int u = (i-2 < 0) ? points.size()-2:i-2;
+					int v = (i-1 < 0) ? points.size()-1:i-1;
+					Ogre::Vector3 dir0 = points[u] - points[0];
+					Ogre::Vector3 dir1 = points[0] - points[v];
+					Ogre::Vector3 normal = dir1.crossProduct(dir0).normalisedCopy();
+					obj->normal(normal);
+					//obj->normal(points[i]);
+					//obj->textureCoord(textures_coords[i]);
+				}
+			}
+			else {
+				for (int i=0; i<points.size(); i++) {
+					obj->position(points[i]);
+					int u = (i+2 >= points.size()) ? 1:i+2;
+					int v = (i+1 >= points.size()) ? points.size()-1:i+1;
+					Ogre::Vector3 dir0 = points[u] - points[0];
+					Ogre::Vector3 dir1 = points[0] - points[v];
+					Ogre::Vector3 normal = dir1.crossProduct(dir0).normalisedCopy();
+					obj->normal(normal);
+					//obj->normal(points[i]);
+					//obj->textureCoord(textures_coords[i]);
+				}
 			}
 			//for (int i=0; i<points.size()-2; i++)
 				//obj->triangle(0, i+1, i+2);
@@ -76,11 +92,12 @@ public:
 
 		// lower side
 		for (int i=0; i<5; i++) points.push_back(arr[i]);
-		drawFan(obj, points, textures);
+		drawFan(obj, points, textures, true);
 
 		// upper side
 		for (int i=0; i<5; i++) points[i].z = 1.0;
 		drawFan(obj, points, textures); points.clear();
+
 
 		// border
 		points.push_back(arr[0]);
