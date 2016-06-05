@@ -76,31 +76,56 @@ public:
 		node->attachObject(obj);
 	}
 
-	void drawCase(SceneManager* manager, SceneNode* node, std::string name, float mid_ratio) {
+	void drawCase(SceneManager* manager, SceneNode* node, std::string name) {
 		ManualObject* obj = manager->createManualObject(name);
 		std::vector<v3> points;
 		std::vector<v2> textures;
 		textures.push_back(v2(0,0)); textures.push_back(v2(0,1)); textures.push_back(v2(1,0)); textures.push_back(v2(1,1));
+
+		float start_length = 8.0, 
+			  mid_ratio = 0.5,
+			  mid_length = 7.0;
 		
-		// top
-		points.push_back(v3(-1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
-		points.push_back(v3(-1.0 * mid_ratio,			 1.0 + sqrt(2), 8.0));
-		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 8.0));
-		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
+		// first top
+		points.push_back(v3(-1.0,			 1.0 + sqrt(2), 0.0));
+		points.push_back(v3(-1.0,			 1.0 + sqrt(2), start_length));
+		points.push_back(v3(1.0,			 1.0 + sqrt(2), start_length));
+		points.push_back(v3(1.0,			 1.0 + sqrt(2), 0.0));
 		drawFan(obj, points, textures); points.clear();
 
-		// inclined right
-		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
-		points.push_back(v3(1.0 * mid_ratio,			 1.0 + sqrt(2), 8.0));
-		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0, 8.0));
-		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0, 0.0));
+		// first inclined right
+		points.push_back(v3(1.0,			 1.0 + sqrt(2), 0.0));
+		points.push_back(v3(1.0,			 1.0 + sqrt(2), start_length));
+		points.push_back(v3(1.0 + sqrt(2),   1.0, start_length));
+		points.push_back(v3(1.0 + sqrt(2),   1.0, 0.0));
 		drawFan(obj, points, textures); points.clear();
 
-		// inclined left
-		points.push_back(v3(-1.0 * mid_ratio,			 1.0 + sqrt(2), 0.0));
-		points.push_back(v3(-1.0 * mid_ratio,			 1.0 + sqrt(2), 8.0));
-		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 1.0, 8.0));
-		points.push_back(v3(-(1.0 + sqrt(2))*mid_ratio,	 1.0, 0.0));
+		// first inclined left
+		points.push_back(v3(-1.0,			  1.0 + sqrt(2), 0.0));
+		points.push_back(v3(-1.0,			  1.0 + sqrt(2), start_length));
+		points.push_back(v3(-(1.0 + sqrt(2)), 1.0, start_length));
+		points.push_back(v3(-(1.0 + sqrt(2)), 1.0, 0.0));
+		drawFan(obj, points, textures, true); points.clear();
+
+		// second top
+		points.push_back(v3(-1.0,			  1.0 + sqrt(2), start_length));
+		points.push_back(v3(-1.0 * mid_ratio, (1.0 + sqrt(2)) * mid_ratio, start_length + mid_length));
+		points.push_back(v3(1.0 * mid_ratio,  (1.0 + sqrt(2)) * mid_ratio, start_length + mid_length));
+		points.push_back(v3(1.0,			  1.0 + sqrt(2), start_length));
+		drawFan(obj, points, textures); points.clear();
+
+		// second inclined right
+		points.push_back(v3(1.0,					     1.0 + sqrt(2), start_length));
+		points.push_back(v3(1.0 * mid_ratio,			 (1.0 + sqrt(2)) * mid_ratio, start_length + mid_length));
+		points.push_back(v3((1.0 + sqrt(2)) * mid_ratio, 1.0 * mid_ratio, start_length + mid_length));
+		points.push_back(v3((1.0 + sqrt(2)),			 1.0, start_length));
+		drawFan(obj, points, textures); points.clear();
+
+		// second inclined left
+		points.push_back(v3(-1.0,						  1.0 + sqrt(2), start_length));
+		points.push_back(v3(-1.0 * mid_ratio,			  (1.0 + sqrt(2)) * mid_ratio, start_length + mid_length));
+		points.push_back(v3(-(1.0 + sqrt(2)) * mid_ratio, 1.0 * mid_ratio, start_length + mid_length));
+		points.push_back(v3(-(1.0 + sqrt(2)),			  1.0, start_length));
 		drawFan(obj, points, textures, true); points.clear();
 
 		node->attachObject(obj);
@@ -210,10 +235,10 @@ public:
 		drawSides(manager, sides, std::string("sides"), ship_size);
 
 		SceneNode* upper_case = ship->createChildSceneNode();
-		drawCase(manager, upper_case, std::string("upper_case"), ship_size);
+		drawCase(manager, upper_case, std::string("upper_case"));
 
 		SceneNode* lower_case = ship->createChildSceneNode();
-		drawCase(manager, lower_case, std::string("lower_case"), ship_size);
+		drawCase(manager, lower_case, std::string("lower_case"));
 
 		SceneNode* left_wing1 = back->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
