@@ -5,17 +5,19 @@
 
 #define v3 Ogre::Vector3
 #define v2 Ogre::Vector2
-float pitch_degree[4] = {30.0, -30.0, 30.0, -30.0};
+float wing_degree[4] = {30.0, -30.0, 30.0, -30.0},
+	 xlaser1 = 0, 
+	 zlaser1 = 5;
+v3 ship_position(0, 0, 0),
+   cam_position(0, 10, 50);
 
+SceneNode * wing[4];
 
-float xlaser1 = 0, zlaser1 = 5;
-Ogre::AnimationState* AnimationLaser01;
 
 class FrameListenerClase : public Ogre::FrameListener{
 
 private:
-	Ogre::SceneNode* _nodoF01;
-	Ogre::Entity* _entOgre;
+	Ogre::SceneNode* _node;
 	Ogre::AnimationState* _anim;
 	OIS::InputManager* _man;
 	OIS::Keyboard* _key;
@@ -23,8 +25,7 @@ private:
 	Ogre::Camera* _cam;
 
 public:
-	FrameListenerClase(Ogre::SceneNode* nodo01,Ogre::Entity* entOgre01 ,Ogre::Camera* cam, RenderWindow* win){
-
+	FrameListenerClase(Ogre::SceneNode* node, Ogre::Camera* cam, RenderWindow* win){
 		//Configuracion para captura de teclado y mouse 
 		size_t windowHnd = 0;
 		std::stringstream windowHndStr;
@@ -39,12 +40,7 @@ public:
 		_key = static_cast<OIS::Keyboard*>(_man->createInputObject(OIS::OISKeyboard,false));
 		_mouse = static_cast<OIS::Mouse*>(_man->createInputObject(OIS::OISMouse,false));
 		_cam = cam;
-		_nodoF01 = nodo01;
-		_entOgre = entOgre01;
-
-		_anim = _entOgre->getAnimationState("Dance");
-		_anim->setEnabled(true);
-		_anim->setLoop(true);
+		_node = node;
 	}
 
 
@@ -58,50 +54,78 @@ public:
 		_key->capture();
 		_mouse->capture();
 
-		float movSpeed=10.0f;
+		float speed_factor = 0.1f;
 		Ogre::Vector3 tmov(0,0,0);
-		Ogre::Vector3 tcam(0,0,0);
 
 		//Camara
 		if (_key->isKeyDown(OIS::KC_ESCAPE))
 			return false;
 
-		if(_key->isKeyDown(OIS::KC_W))
-			tcam += Ogre::Vector3(0,0,-10);
+		if(_key->isKeyDown(OIS::KC_W)) {
+			tmov += Ogre::Vector3(0,0,-10);
+		}
 		
-		if(_key->isKeyDown(OIS::KC_S))
-			tcam += Ogre::Vector3(0,0,10);
+		/*if(_key->isKeyDown(OIS::KC_S)) {
+			tmov += Ogre::Vector3(0,0,10);
+		}*/
 
-		if(_key->isKeyDown(OIS::KC_A))
-			tcam += Ogre::Vector3(-10,0,0);
+		if(_key->isKeyDown(OIS::KC_A)) {
+			if (_node->getPosition().x > -20)
+				tmov += Ogre::Vector3(-10,0,0);
+		}
 		
-		if(_key->isKeyDown(OIS::KC_D))
-			tcam += Ogre::Vector3(10,0,0);
+		if(_key->isKeyDown(OIS::KC_D)) {
+			if (_node->getPosition().x < 20)
+				tmov += Ogre::Vector3(10,0,0);
+		}
 
+		if(_key->isKeyDown(OIS::KC_E)) {
+			wing_degree[0] += 10.0;
+			wing_degree[1] -= 10.0;
+			wing_degree[2] += 10.0;
+			wing_degree[3] -= 10.0;
+			wing[0]->pitch(Degree(wing_degree[0]));
+			wing[1]->pitch(Degree(wing_degree[1]));
+			wing[2]->pitch(Degree(wing_degree[2]));
+			wing[3]->pitch(Degree(wing_degree[3]));
+		}
 
 		//camara control
-		float rotX = _mouse->getMouseState().X.rel * evt.timeSinceLastFrame*-1;
-		float rotY = _mouse->getMouseState().Y.rel * evt.timeSinceLastFrame*-1;
-		_cam->yaw(Ogre::Radian(rotX));
-		_cam->pitch(Ogre::Radian(rotY));
-		_cam->moveRelative(tcam*movSpeed*evt.timeSinceLastFrame);
-		_nodoF01->translate(tmov * evt.timeSinceLastFrame);
-		_anim->addTime(evt.timeSinceLastFrame*3);
-
+		cam_position += (tmov * speed_factor);
+		_cam->setPosition(cam_position);
+		ship_position += (tmov * speed_factor);
+		_node->setPosition(ship_position);
 		return true;
 	}
 };
 
+
 class Example1 : public ExampleApplication
 {
-
 public:
+	Ogre::FrameListener* FrameListener01;
+	SceneNode* ship;
+
+	Example1(){
+		FrameListener01 = NULL;
+	}
+
+	~Example1(){
+		if(FrameListener01){
+			delete FrameListener01;
+		}
+	}
 
 	void createCamera() {
 		mCamera = mSceneMgr->createCamera("MyCamera1");
-		mCamera->setPosition(0,10,50);
+		mCamera->setPosition(cam_position);
 		mCamera->lookAt(0,0,-50);
 		mCamera->setNearClipDistance(5);
+	}
+
+	void createFrameListener(){
+		FrameListener01 = new FrameListenerClase(ship, mCamera, mWindow);
+		mRoot->addFrameListener(FrameListener01);
 	}
 
 	void drawFan(ManualObject* obj, std::vector<v3> points, std::vector<v2> textures_coords, bool inverted_normal = false) {
@@ -324,7 +348,8 @@ public:
 			  mid_ratio = 0.2,
 			  mid_length = 11.0;
 
-		SceneNode* ship = manager->getRootSceneNode()->createChildSceneNode();
+		ship = manager->getRootSceneNode()->createChildSceneNode();
+		ship->setPosition(ship_position);
 		ship->setScale(ship_size, ship_size, ship_size);
 		ship->yaw(Degree(180.0));
 
@@ -423,56 +448,56 @@ public:
 		SceneNode* lower_case = ship->createChildSceneNode();
 		drawCase(manager, lower_case, std::string("lower_case"), start_length, mid_ratio, mid_length);
 
-		SceneNode* left_wing1 = ship->createChildSceneNode();
+		wing[0] = ship->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
-		createWing(manager, left_wing1, std::string("ship_left_wing1"), wing_size, left_degrees, v3(wing_proximity, 0.0, 0.0));
-		left_wing1->pitch(Degree(pitch_degree[0]));
+		createWing(manager, wing[0], std::string("ship_left_wing1"), wing_size, left_degrees, v3(wing_proximity, 0.0, 0.0));
+		wing[0]->pitch(Degree(wing_degree[0]));
 
 		// Create cylinder left wing
 		Ogre::Entity* entCylinderWing01 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		Ogre:: SceneNode* cylinderWing01 = mSceneMgr->createSceneNode("cylinderWing01");
-		left_wing1->addChild(cylinderWing01);
+		wing[0]->addChild(cylinderWing01);
 		cylinderWing01->attachObject(entCylinderWing01);
 		cylinderWing01->setScale(0.025, 0.35, 0.25);
 		cylinderWing01->setPosition(2.3, 5, 1);
 		cylinderWing01->roll(Degree(90));
 		
 
-		SceneNode* left_wing2 = ship->createChildSceneNode();
-		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(wing_proximity, -1.0, 0.0));
-		left_wing2->pitch(Degree(pitch_degree[1]));
+		wing[1] = ship->createChildSceneNode();
+		createWing(manager, wing[1], std::string("ship_left_wing2"), wing_size, left_degrees, v3(wing_proximity, -1.0, 0.0));
+		wing[1]->pitch(Degree(wing_degree[1]));
 
 		// Create cylinder left wing 02
 		Ogre::Entity* entCylinderWing02 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		Ogre:: SceneNode* cylinderWing02 = mSceneMgr->createSceneNode("cylinderWing02");
-		left_wing2->addChild(cylinderWing02);
+		wing[1]->addChild(cylinderWing02);
 		cylinderWing02->attachObject(entCylinderWing02);
 		cylinderWing02->setScale(0.025, 0.35, 0.25);
 		cylinderWing02->setPosition(2.3, 5, 0.5);
 		cylinderWing02->roll(Degree(90));
 		
-		SceneNode* right_wing1 = ship->createChildSceneNode();
+		wing[2] = ship->createChildSceneNode();
 		float right_degrees[] = {180.0, -90.0, -90.0};
-		createWing(manager, right_wing1, std::string("ship_right_wing1"), wing_size, right_degrees, v3(-wing_proximity, 0.0, 8.0));
-		right_wing1->pitch(Degree(pitch_degree[2]));
+		createWing(manager, wing[2], std::string("ship_right_wing1"), wing_size, right_degrees, v3(-wing_proximity, 0.0, 8.0));
+		wing[2]->pitch(Degree(wing_degree[2]));
 
 		// Create cylinder right wing 01
 		Ogre::Entity* entCylinderWing03 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		Ogre:: SceneNode* cylinderWing03 = mSceneMgr->createSceneNode("cylinderWing03");
-		right_wing1->addChild(cylinderWing03);
+		wing[2]->addChild(cylinderWing03);
 		cylinderWing03->attachObject(entCylinderWing03);
 		cylinderWing03->setScale(0.025, 0.35, 0.25);
 		cylinderWing03->setPosition(-0.3, 5, 0.9);
 		cylinderWing03->roll(Degree(90));
 
-		SceneNode* right_wing2 = ship->createChildSceneNode();
-		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-wing_proximity, -1.0, 8.0));
-		right_wing2->pitch(Degree(pitch_degree[3]));
+		wing[3] = ship->createChildSceneNode();
+		createWing(manager, wing[3], std::string("ship_right_wing2"), wing_size, right_degrees, v3(-wing_proximity, -1.0, 8.0));
+		wing[3]->pitch(Degree(wing_degree[3]));
 
 		// Create cylinder right wing 01
 		Ogre::Entity* entCylinderWing04 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		Ogre:: SceneNode* cylinderWing04 = mSceneMgr->createSceneNode("cylinderWing04");
-		right_wing2->addChild(cylinderWing04);
+		wing[3]->addChild(cylinderWing04);
 		cylinderWing04->attachObject(entCylinderWing04);
 		cylinderWing04->setScale(0.025, 0.35, 0.25);
 		cylinderWing04->setPosition(-0.3, 5, 0.2);
@@ -581,6 +606,33 @@ public:
 		laser1->setPosition(xlaser1, 2.8, zlaser1);
 		laser1->pitch(Degree(90));
 	
+		float duration = 4.0;
+		Ogre::Animation* animationLaser01 = mSceneMgr->createAnimation("AnimLaser01",duration);
+		animationLaser01->setInterpolationMode(Animation::IM_SPLINE);
+		
+		Ogre::NodeAnimationTrack* Laser01track = animationLaser01->createNodeTrack(0, laser1);
+		Ogre::TransformKeyFrame* key;
+		
+		key = Laser01track->createNodeKeyFrame(0.0);
+		key->setTranslate(Vector3( 30, 30, 0));
+		key->setScale(Vector3(1.2, 0.16, 1.2));
+
+		key = Laser01track->createNodeKeyFrame(1.0);
+		key->setTranslate(Vector3(30, 30, 35));
+		key->setScale(Vector3(1.2, 0.16, 1.2));
+
+		key = Laser01track->createNodeKeyFrame(2.0);
+		key->setTranslate(Vector3(30, 30, 0));
+		key->setScale(Vector3(1.2, 0.16, 1.2));
+
+		key = Laser01track->createNodeKeyFrame(3.0);
+		key->setTranslate(Vector3(30, 30, -35));
+		key->setScale(Vector3(1.2, 0.16, 1.2));
+
+		key = Laser01track->createNodeKeyFrame(4.0);
+		key->setTranslate(Vector3(30, 30, 0));
+		key->setScale(Vector3(1.2, 0.16, 1.2));
+
 		// Torreta Numero 2
 		Ogre::Entity* entTorreta02 = mSceneMgr->createEntity("usb_cubomod01.mesh");
 		torreta02 = mSceneMgr->createSceneNode("torreta02");
@@ -720,7 +772,7 @@ public:
 
 		//SPACE
 		mSceneMgr->setSkyDome(true, "matPropio05", 5, 8);
-
+		
 		drawShip(mSceneMgr);
 	}
 };
