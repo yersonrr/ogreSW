@@ -119,3 +119,29 @@ material matPropio05
 	}
 
 }
+
+material matPropio06
+{
+
+	technique
+	{
+
+		pass
+		{
+			lighting on
+
+			ambient 1.0 1.0 1.0 1
+			diffuse 1.0 1.0 1.0 1
+			emissive 0 0 0 1
+
+			texture_unit{
+				texture fire.jpg
+				rotate_anim 0.2
+				scale 2 2
+			}
+
+		}
+
+	}
+
+}

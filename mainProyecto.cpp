@@ -5,6 +5,8 @@
 
 #define v3 Ogre::Vector3
 #define v2 Ogre::Vector2
+float pitch_degree[4] = {30.0, -30.0, 30.0, -30.0};
+
 
 float xlaser1 = 0, zlaser1 = 5;
 Ogre::AnimationState* AnimationLaser01;
@@ -52,13 +54,6 @@ public:
 		OIS::InputManager::destroyInputSystem(_man);
 	}
 
-	void animation(){
-		xlaser1 += 0.03;
-		zlaser1 += 0.03;
-
-		animation();
-	}
-
 	bool frameStarted(const Ogre::FrameEvent &evt){
 		_key->capture();
 		_mouse->capture();
@@ -93,7 +88,6 @@ public:
 		_nodoF01->translate(tmov * evt.timeSinceLastFrame);
 		_anim->addTime(evt.timeSinceLastFrame*3);
 
-		animation();
 		return true;
 	}
 };
@@ -343,6 +337,83 @@ public:
 		front->setPosition(0.0, 0.0, start_length + mid_length);
 		front->setScale(mid_ratio, mid_ratio, 1.0);
 
+		// Create cylinder
+		Ogre::Entity* entCylinderMotor01 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderMotor01 = mSceneMgr->createSceneNode("cylinder01");
+		ship->addChild(cylinderMotor01);
+		cylinderMotor01->attachObject(entCylinderMotor01);
+		cylinderMotor01->setScale(0.25, 0.7, 0.25);
+		cylinderMotor01->setPosition(2, 1.5, 3.9);
+		cylinderMotor01->pitch(Degree(90));
+
+		Ogre::Entity* entCylinderMotor02 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderMotor02 = mSceneMgr->createSceneNode("cylinder02");
+		ship->addChild(cylinderMotor02);
+		cylinderMotor02->attachObject(entCylinderMotor02);
+		cylinderMotor02->setScale(0.25, 0.7, 0.25);
+		cylinderMotor02->setPosition(-2, 1.5, 3.9);
+		cylinderMotor02->pitch(Degree(90));
+
+		Ogre::Entity* entCylinderMotor03 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderMotor03 = mSceneMgr->createSceneNode("cylinder03");
+		ship->addChild(cylinderMotor03);
+		cylinderMotor03->attachObject(entCylinderMotor03);
+		cylinderMotor03->setScale(0.25, 0.7, 0.25);
+		cylinderMotor03->setPosition(-2, -1.5, 3.9);
+		cylinderMotor03->pitch(Degree(90));
+
+		Ogre::Entity* entCylinderMotor04 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderMotor04 = mSceneMgr->createSceneNode("cylinder04");
+		ship->addChild(cylinderMotor04);
+		cylinderMotor04->attachObject(entCylinderMotor04);
+		cylinderMotor04->setScale(0.25, 0.7, 0.25);
+		cylinderMotor04->setPosition(2, -1.5, 3.9);
+		cylinderMotor04->pitch(Degree(90));
+
+		entCylinderMotor01->setMaterialName("matPropio03");
+		entCylinderMotor02->setMaterialName("matPropio03");
+		entCylinderMotor03->setMaterialName("matPropio03");
+		entCylinderMotor04->setMaterialName("matPropio03");
+
+		// Create Propeller
+		Ogre::Entity* entCylinderPropeller01 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderPropeller01 = mSceneMgr->createSceneNode("cylinderPropeller01");
+		ship->addChild(cylinderPropeller01);
+		cylinderPropeller01->attachObject(entCylinderPropeller01);
+		cylinderPropeller01->setScale(0.18, 0.2, 0.18);
+		cylinderPropeller01->setPosition(2, 1.5, 0.1);
+		cylinderPropeller01->pitch(Degree(90));
+
+		Ogre::Entity* entCylinderPropeller02 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderPropeller02 = mSceneMgr->createSceneNode("cylinderPropeller02");
+		ship->addChild(cylinderPropeller02);
+		cylinderPropeller02->attachObject(entCylinderPropeller02);
+		cylinderPropeller02->setScale(0.18, 0.2, 0.18);
+		cylinderPropeller02->setPosition(-2, 1.5, 0.1);
+		cylinderPropeller02->pitch(Degree(90));
+
+		Ogre::Entity* entCylinderPropeller03 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderPropeller03 = mSceneMgr->createSceneNode("cylinderPropeller03");
+		ship->addChild(cylinderPropeller03);
+		cylinderPropeller03->attachObject(entCylinderPropeller03);
+		cylinderPropeller03->setScale(0.18, 0.2, 0.18);
+		cylinderPropeller03->setPosition(-2, -1.5, 0.1);
+		cylinderPropeller03->pitch(Degree(90));
+
+		Ogre::Entity* entCylinderPropeller04 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderPropeller04 = mSceneMgr->createSceneNode("cylinderPropeller04");
+		ship->addChild(cylinderPropeller04);
+		cylinderPropeller04->attachObject(entCylinderPropeller04);
+		cylinderPropeller04->setScale(0.18, 0.2, 0.18);
+		cylinderPropeller04->setPosition(2, -1.5, 0.1);
+		cylinderPropeller04->pitch(Degree(90));
+
+		entCylinderPropeller01->setMaterialName("matPropio06");
+		entCylinderPropeller02->setMaterialName("matPropio06");
+		entCylinderPropeller03->setMaterialName("matPropio06");
+		entCylinderPropeller04->setMaterialName("matPropio06");
+
+
 		SceneNode* sides = ship->createChildSceneNode();
 		drawSides(manager, sides, std::string("sides"), start_length, mid_ratio, mid_length);
 
@@ -355,16 +426,63 @@ public:
 		SceneNode* left_wing1 = ship->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
 		createWing(manager, left_wing1, std::string("ship_left_wing1"), wing_size, left_degrees, v3(wing_proximity, 0.0, 0.0));
+		left_wing1->pitch(Degree(pitch_degree[0]));
+
+		// Create cylinder left wing
+		Ogre::Entity* entCylinderWing01 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderWing01 = mSceneMgr->createSceneNode("cylinderWing01");
+		left_wing1->addChild(cylinderWing01);
+		cylinderWing01->attachObject(entCylinderWing01);
+		cylinderWing01->setScale(0.025, 0.35, 0.25);
+		cylinderWing01->setPosition(2.3, 5, 1);
+		cylinderWing01->roll(Degree(90));
+		
 
 		SceneNode* left_wing2 = ship->createChildSceneNode();
 		createWing(manager, left_wing2, std::string("ship_left_wing2"), wing_size, left_degrees, v3(wing_proximity, -1.0, 0.0));
+		left_wing2->pitch(Degree(pitch_degree[1]));
+
+		// Create cylinder left wing 02
+		Ogre::Entity* entCylinderWing02 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderWing02 = mSceneMgr->createSceneNode("cylinderWing02");
+		left_wing2->addChild(cylinderWing02);
+		cylinderWing02->attachObject(entCylinderWing02);
+		cylinderWing02->setScale(0.025, 0.35, 0.25);
+		cylinderWing02->setPosition(2.3, 5, 0.5);
+		cylinderWing02->roll(Degree(90));
 		
 		SceneNode* right_wing1 = ship->createChildSceneNode();
 		float right_degrees[] = {180.0, -90.0, -90.0};
 		createWing(manager, right_wing1, std::string("ship_right_wing1"), wing_size, right_degrees, v3(-wing_proximity, 0.0, 8.0));
+		right_wing1->pitch(Degree(pitch_degree[2]));
+
+		// Create cylinder right wing 01
+		Ogre::Entity* entCylinderWing03 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderWing03 = mSceneMgr->createSceneNode("cylinderWing03");
+		right_wing1->addChild(cylinderWing03);
+		cylinderWing03->attachObject(entCylinderWing03);
+		cylinderWing03->setScale(0.025, 0.35, 0.25);
+		cylinderWing03->setPosition(-0.3, 5, 0.9);
+		cylinderWing03->roll(Degree(90));
 
 		SceneNode* right_wing2 = ship->createChildSceneNode();
 		createWing(manager, right_wing2, std::string("ship_right_wing2"), wing_size, right_degrees, v3(-wing_proximity, -1.0, 8.0));
+		right_wing2->pitch(Degree(pitch_degree[3]));
+
+		// Create cylinder right wing 01
+		Ogre::Entity* entCylinderWing04 = mSceneMgr->createEntity("usb_cilindro.mesh");
+		Ogre:: SceneNode* cylinderWing04 = mSceneMgr->createSceneNode("cylinderWing04");
+		right_wing2->addChild(cylinderWing04);
+		cylinderWing04->attachObject(entCylinderWing04);
+		cylinderWing04->setScale(0.025, 0.35, 0.25);
+		cylinderWing04->setPosition(-0.3, 5, 0.2);
+		cylinderWing04->roll(Degree(90));
+
+		entCylinderWing01->setMaterialName("matPropio04");
+		entCylinderWing02->setMaterialName("matPropio04");
+		entCylinderWing03->setMaterialName("matPropio04");
+		entCylinderWing04->setMaterialName("matPropio04");
+
 	}
 
 	void createScene()
@@ -383,6 +501,9 @@ public:
 		Ogre::SceneNode* canon2_2;
 		Ogre::SceneNode* canon3;
 		Ogre::SceneNode* canon4;
+
+		xlaser1 += 0.1;
+		zlaser1 += 0.1;
 
 		mSceneMgr->setAmbientLight(Ogre::ColourValue(1.0, 1.0, 1.0));
 		mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
@@ -444,9 +565,9 @@ public:
 		canon1_1->setPosition(0, 2.8, 5);
 		canon1_1->pitch(Degree(90));
 
-		entTorreta01->setMaterialName("matPropio03");
-		entSuperficie->setMaterialName("matPropio01");
-		entCanon->setMaterialName("matPropio02");
+		entTorreta01->setMaterialName("matPropio04");
+		entSuperficie->setMaterialName("matPropio03");
+		entCanon->setMaterialName("matPropio04");
 		entCanon1_1->setMaterialName("matPropio03");
 		torreta01->yaw(Degree(30));
 			
