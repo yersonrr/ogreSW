@@ -5,22 +5,33 @@
 
 #define v3 Ogre::Vector3
 #define v2 Ogre::Vector2
-float wing_degree[4] = {30.0, -30.0, 30.0, -30.0};
-v3 ship_position(0, 0, 0),
-   cam_position(0, 10, 50);
 
+int number_wings = 4;
+
+float wing_degree[4] = {0.0, 0.0, 0.0, 0.0},
+	wing_degree_open[4][3] = {
+		0.0,  16.0,  32.0,
+		0.0, -16.0, -32.0,
+		0.0, -16.0, -32.0,
+		0.0,  16.0,  32.0};
+v3 ship_position(0.0, 0.0, 0.0),
+   cam_position(0.0, 10.0, 40.0), 
+   wing_rotation_vector(0, 0, 1);
+
+AnimationState * wingOpenState[4], * wingCloseState[4];
+char* wingOpenName[] = {"wing_open_1", "wing_open_2", "wing_open_3", "wing_open_4"};
+char* wingCloseName[] = {"wing_close_1", "wing_close_2", "wing_close_3", "wing_close_4"};
+bool is_accelerating = false;
+
+SceneNode * wing[4], * wing2[4];
 Ogre::AnimationState* AnimLaser1;
 Ogre::AnimationState* AnimLaser2;
 Ogre::AnimationState* AnimLaser3;
 Ogre::AnimationState* AnimLaser4;
 Ogre::AnimationState* AnimLaser5;
 Ogre::AnimationState* AnimLaser6;
-
 Ogre::AnimationState* AnimRight;
 Ogre::AnimationState* AnimNormal1;
-
-SceneNode * wing[4];
-
 
 class FrameListenerClase : public Ogre::FrameListener{
 
@@ -71,11 +82,11 @@ public:
 
 		if(_key->isKeyDown(OIS::KC_W)) {
 			tmov += Ogre::Vector3(0,0,-10);
+			if (_node->getPosition().z < -1100) {
+				ship_position = v3(0.0, 0.0, 0.0);
+				cam_position = v3(0.0, 10.0, 50.0);
+			}
 		}
-		
-		/*if(_key->isKeyDown(OIS::KC_S)) {
-			tmov += Ogre::Vector3(0,0,10);
-		}*/
 
 		if(_key->isKeyDown(OIS::KC_A)) {
 			if (_node->getPosition().x > -20){
@@ -108,15 +119,36 @@ public:
 		if(AnimRight->getEnabled())
 			AnimRight->addTime(evt.timeSinceLastFrame);
 
-		if(_key->isKeyDown(OIS::KC_E)) {
-			wing_degree[0] += 10.0;
-			wing_degree[1] -= 10.0;
-			wing_degree[2] += 10.0;
-			wing_degree[3] -= 10.0;
-			wing[0]->pitch(Degree(wing_degree[0]));
-			wing[1]->pitch(Degree(wing_degree[1]));
-			wing[2]->pitch(Degree(wing_degree[2]));
-			wing[3]->pitch(Degree(wing_degree[3]));
+		if(_key->isKeyDown(OIS::KC_E) && !is_accelerating) {
+			is_accelerating = true;
+			
+			for (int i=0; i<number_wings; i++) {
+				wingOpenState[i]->setEnabled(true);
+				wingCloseState[i]->setEnabled(false);
+				wingOpenState[i]->setLoop(false);
+				wingOpenState[i]->setTimePosition(0.0);
+			}
+		}
+
+		if(_key->isKeyDown(OIS::KC_R) && is_accelerating) {
+			is_accelerating = false;
+
+			for (int i=0; i<number_wings; i++) {
+				wingOpenState[i]->setEnabled(false);
+				wingCloseState[i]->setEnabled(true);
+				wingCloseState[i]->setLoop(false);
+				wingCloseState[i]->setTimePosition(0.0);
+			}
+		}
+
+		if(wingOpenState[0]->getEnabled()) {
+			for (int i=0; i<number_wings; i++)
+				wingOpenState[i]->addTime(evt.timeSinceLastFrame);
+		}
+
+		if(wingCloseState[0]->getEnabled()) {
+			for (int i=0; i<number_wings; i++)
+				wingCloseState[i]->addTime(evt.timeSinceLastFrame);
 		}
 
 		//camara control
@@ -136,7 +168,6 @@ public:
 		return true;
 	}
 };
-
 
 class Example1 : public ExampleApplication
 {
@@ -533,10 +564,14 @@ public:
 		SceneNode* lower_case = ship->createChildSceneNode();
 		drawCase(manager, lower_case, std::string("lower_case"), start_length, mid_ratio, mid_length);
 
-		wing[0] = ship->createChildSceneNode();
+		wing2[0] = ship->createChildSceneNode();
+		wing[0] = wing2[0]->createChildSceneNode();
 		float left_degrees[] = {180.0, -90.0, 90.0};
 		createWing(manager, wing[0], std::string("ship_left_wing1"), wing_size, left_degrees, v3(wing_proximity, 0.0, 0.0));
 		wing[0]->pitch(Degree(wing_degree[0]));
+
+		wing2[1] = ship->createChildSceneNode();
+		wing[1] = wing2[1]->createChildSceneNode();
 
 		// Create cylinder left wing
 		Ogre::Entity* entCylinderWing01 = mSceneMgr->createEntity("usb_cilindro.mesh");
@@ -547,8 +582,6 @@ public:
 		cylinderWing01->setPosition(2.3, 5, 1);
 		cylinderWing01->roll(Degree(90));
 		
-
-		wing[1] = ship->createChildSceneNode();
 		createWing(manager, wing[1], std::string("ship_left_wing2"), wing_size, left_degrees, v3(wing_proximity, -1.0, 0.0));
 		wing[1]->pitch(Degree(wing_degree[1]));
 
@@ -561,10 +594,14 @@ public:
 		cylinderWing02->setPosition(2.3, 5, 0.5);
 		cylinderWing02->roll(Degree(90));
 		
-		wing[2] = ship->createChildSceneNode();
+		wing2[2] = ship->createChildSceneNode();
+		wing[2] = wing2[2]->createChildSceneNode();
 		float right_degrees[] = {180.0, -90.0, -90.0};
 		createWing(manager, wing[2], std::string("ship_right_wing1"), wing_size, right_degrees, v3(-wing_proximity, 0.0, 8.0));
 		wing[2]->pitch(Degree(wing_degree[2]));
+
+		wing2[3] = ship->createChildSceneNode();
+		wing[3] = wing2[3]->createChildSceneNode();
 
 		// Create cylinder right wing 01
 		Ogre::Entity* entCylinderWing03 = mSceneMgr->createEntity("usb_cilindro.mesh");
@@ -575,7 +612,6 @@ public:
 		cylinderWing03->setPosition(-0.3, 5, 0.9);
 		cylinderWing03->roll(Degree(90));
 
-		wing[3] = ship->createChildSceneNode();
 		createWing(manager, wing[3], std::string("ship_right_wing2"), wing_size, right_degrees, v3(-wing_proximity, -1.0, 8.0));
 		wing[3]->pitch(Degree(wing_degree[3]));
 
@@ -593,6 +629,52 @@ public:
 		entCylinderWing03->setMaterialName("matPropio04");
 		entCylinderWing04->setMaterialName("matPropio04");
 
+	}
+
+	void createOpenWingsAnimation(int wing_index) {
+		// create animation to open wings
+		Real duration = 2.0;
+		Real step = duration/2.0;
+		Animation* animation = mSceneMgr->createAnimation(wingOpenName[wing_index], duration);
+		animation->setInterpolationMode(Animation::IM_SPLINE);
+		NodeAnimationTrack* track = animation->createNodeTrack(0, wing2[wing_index]);
+
+		// add keyframes
+		TransformKeyFrame* key;
+ 
+		key = track->createNodeKeyFrame(0.0f);
+		key->setRotation(Quaternion(Degree(wing_degree_open[wing_index][0]), wing_rotation_vector));
+ 
+		key = track->createNodeKeyFrame(step);
+		key->setRotation(Quaternion(Degree(wing_degree_open[wing_index][1]), wing_rotation_vector));
+ 
+		key = track->createNodeKeyFrame(step * 2.0);
+		key->setRotation(Quaternion(Degree(wing_degree_open[wing_index][2]), wing_rotation_vector));
+
+		wingOpenState[wing_index] = mSceneMgr->createAnimationState(wingOpenName[wing_index]);
+	}
+
+	void createCloseWingsAnimation(int wing_index) {
+		// create animation to open wings
+		Real duration = 2.0;
+		Real step = duration/2.0;
+		Animation* animation = mSceneMgr->createAnimation(wingCloseName[wing_index], duration);
+		animation->setInterpolationMode(Animation::IM_SPLINE);
+		NodeAnimationTrack* track = animation->createNodeTrack(0, wing2[wing_index]);
+
+		// add keyframes
+		TransformKeyFrame* key;
+ 
+		key = track->createNodeKeyFrame(0.0f);
+		key->setRotation(Quaternion(Degree(wing_degree_open[wing_index][2]), wing_rotation_vector));
+ 
+		key = track->createNodeKeyFrame(step);
+		key->setRotation(Quaternion(Degree(wing_degree_open[wing_index][1]), wing_rotation_vector));
+ 
+		key = track->createNodeKeyFrame(step * 2.0);
+		key->setRotation(Quaternion(Degree(wing_degree_open[wing_index][0]), wing_rotation_vector));
+
+		wingCloseState[wing_index] = mSceneMgr->createAnimationState(wingCloseName[wing_index]);
 	}
 
 	void createScene()
@@ -615,13 +697,6 @@ public:
 		mSceneMgr->setAmbientLight(Ogre::ColourValue(1.0, 1.0, 1.0));
 		mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 		
-
-		Ogre::Entity* ent01 = mSceneMgr->createEntity("MyEntity1","ejes01.mesh");
-		Ogre::SceneNode* node01 = mSceneMgr->createSceneNode("node01");
-		mSceneMgr->getRootSceneNode()->addChild(node01);
-		node01->attachObject(ent01);
-		
-
 		Ogre::Entity* entEscena01 = mSceneMgr->createEntity("ogre_base01.mesh");
 		mSceneMgr->getRootSceneNode()->attachObject(entEscena01);
 
@@ -997,6 +1072,11 @@ public:
 		mSceneMgr->setSkyDome(true, "matPropio05", 5, 8);
 		
 		drawShip(mSceneMgr);
+
+		for (int i=0; i<number_wings; i++) {
+			createCloseWingsAnimation(i);
+			createOpenWingsAnimation(i);
+		}
 	}
 };
 
