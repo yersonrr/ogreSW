@@ -5,11 +5,16 @@
 
 #define v3 Ogre::Vector3
 #define v2 Ogre::Vector2
-float wing_degree[4] = {30.0, -30.0, 30.0, -30.0},
-	 xlaser1 = 0, 
-	 zlaser1 = 5;
+float wing_degree[4] = {30.0, -30.0, 30.0, -30.0};
 v3 ship_position(0, 0, 0),
    cam_position(0, 10, 50);
+
+Ogre::AnimationState* AnimLaser1;
+Ogre::AnimationState* AnimLaser2;
+Ogre::AnimationState* AnimLaser3;
+Ogre::AnimationState* AnimLaser4;
+Ogre::AnimationState* AnimLaser5;
+Ogre::AnimationState* AnimLaser6;
 
 SceneNode * wing[4];
 
@@ -95,6 +100,15 @@ public:
 		_cam->setPosition(cam_position);
 		ship_position += (tmov * speed_factor);
 		_node->setPosition(ship_position);
+
+		
+		AnimLaser1->addTime(evt.timeSinceLastFrame);
+		AnimLaser2->addTime(evt.timeSinceLastFrame);
+		AnimLaser3->addTime(evt.timeSinceLastFrame);
+		AnimLaser4->addTime(evt.timeSinceLastFrame);
+		AnimLaser5->addTime(evt.timeSinceLastFrame);
+		AnimLaser6->addTime(evt.timeSinceLastFrame);
+
 		return true;
 	}
 };
@@ -527,9 +541,6 @@ public:
 		Ogre::SceneNode* canon3;
 		Ogre::SceneNode* canon4;
 
-		xlaser1 += 0.1;
-		zlaser1 += 0.1;
-
 		mSceneMgr->setAmbientLight(Ogre::ColourValue(1.0, 1.0, 1.0));
 		mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 		
@@ -603,10 +614,10 @@ public:
 		torreta01->addChild(laser1);
 		laser1->attachObject(entLaser);
 		laser1->setScale(1.2, 0.16, 1.2);
-		laser1->setPosition(xlaser1, 2.8, zlaser1);
+		laser1->setPosition(0, 2.8, 5);
 		laser1->pitch(Degree(90));
 	
-		float duration = 4.0;
+		float duration = 0.3;
 		Ogre::Animation* animationLaser01 = mSceneMgr->createAnimation("AnimLaser01",duration);
 		animationLaser01->setInterpolationMode(Animation::IM_SPLINE);
 		
@@ -614,24 +625,18 @@ public:
 		Ogre::TransformKeyFrame* key;
 		
 		key = Laser01track->createNodeKeyFrame(0.0);
-		key->setTranslate(Vector3( 30, 30, 0));
+		key->setTranslate(Vector3(0, 2.8, 5));
 		key->setScale(Vector3(1.2, 0.16, 1.2));
+		key->setRotation(Ogre::Quaternion(Degree(90), v3(1,0,0)));
 
-		key = Laser01track->createNodeKeyFrame(1.0);
-		key->setTranslate(Vector3(30, 30, 35));
+		key = Laser01track->createNodeKeyFrame(0.3);
+		key->setTranslate(Vector3(5, 2.8, 225));
 		key->setScale(Vector3(1.2, 0.16, 1.2));
+		key->setRotation(Ogre::Quaternion(Degree(90), v3(1,0,0)));
 
-		key = Laser01track->createNodeKeyFrame(2.0);
-		key->setTranslate(Vector3(30, 30, 0));
-		key->setScale(Vector3(1.2, 0.16, 1.2));
-
-		key = Laser01track->createNodeKeyFrame(3.0);
-		key->setTranslate(Vector3(30, 30, -35));
-		key->setScale(Vector3(1.2, 0.16, 1.2));
-
-		key = Laser01track->createNodeKeyFrame(4.0);
-		key->setTranslate(Vector3(30, 30, 0));
-		key->setScale(Vector3(1.2, 0.16, 1.2));
+		AnimLaser1 = mSceneMgr->createAnimationState("AnimLaser01");
+		AnimLaser1->setEnabled(true);
+		AnimLaser1->setLoop(true);
 
 		// Torreta Numero 2
 		Ogre::Entity* entTorreta02 = mSceneMgr->createEntity("usb_cubomod01.mesh");
@@ -655,25 +660,80 @@ public:
 		canon2->attachObject(entCanon2);
 		canon2->setScale(0.2, 0.5, 0.2);
 		canon2->setPosition(-1, 3.2, 3);
-		canon2->pitch(Degree(75));
+		canon2->pitch(Degree(90));
 
+		// Create laser and animation 02
+		Ogre::SceneNode* laser2;
+		Ogre::Entity* entLaser2 = mSceneMgr->createEntity("usb_laser.mesh");
+		laser2 = mSceneMgr->createSceneNode("laser2");
+		canon2->addChild(laser2);
+		laser2->attachObject(entLaser2);
+		laser2->setScale(2, 0.7, 2);
+		laser2->setPosition(0, -2, 0);
+		
+		float duration2 = 0.7;
+		Ogre::Animation* animationLaser02 = mSceneMgr->createAnimation("AnimLaser02",duration2);
+		animationLaser02->setInterpolationMode(Animation::IM_SPLINE);
+		
+		Ogre::NodeAnimationTrack* Laser02track = animationLaser02->createNodeTrack(0, laser2);
+		Ogre::TransformKeyFrame* key2;
+		
+		key2 = Laser02track->createNodeKeyFrame(0.0);
+		key2->setTranslate(Vector3(0, 0, 0));
+		key2->setScale(Vector3(2, 0.7, 2));
+
+		key2 = Laser02track->createNodeKeyFrame(0.7);
+		key2->setTranslate(Vector3(0, 300, 0));
+		key2->setScale(Vector3(2, 0.7, 2));
+
+		AnimLaser2 = mSceneMgr->createAnimationState("AnimLaser02");
+		AnimLaser2->setEnabled(true);
+		AnimLaser2->setLoop(true);
+
+		// Canon2_2
 		Ogre::Entity* entCanon2_2 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		canon2_2 = mSceneMgr->createSceneNode("canon2_2");
 		torreta02->addChild(canon2_2);
 		canon2_2->attachObject(entCanon2_2);
 		canon2_2->setScale(0.2, 0.5, 0.2);
 		canon2_2->setPosition(1, 3.2, 3);
-		canon2_2->pitch(Degree(75));
-
+		canon2_2->pitch(Degree(90));
 
 		entTorreta02->setMaterialName("matPropio04");
 		entSuperficie2->setMaterialName("matPropio04");
 		entCanon2->setMaterialName("matPropio03");
 		entCanon2_2->setMaterialName("matPropio03");
 		torreta02->yaw(Degree(30));
+		
+		// Laser 2_2
+		Ogre::SceneNode* laser3;
+		Ogre::Entity* entLaser3 = mSceneMgr->createEntity("usb_laser.mesh");
+		laser3 = mSceneMgr->createSceneNode("laser3");
+		canon2_2->addChild(laser3);
+		laser3->attachObject(entLaser3);
+		laser3->setScale(2, 0.7, 2);
+		laser3->setPosition(0, -2, 0);
+		
+		float duration3 = 0.5;
+		Ogre::Animation* animationLaser03 = mSceneMgr->createAnimation("AnimLaser03",duration3);
+		animationLaser03->setInterpolationMode(Animation::IM_SPLINE);
+		
+		Ogre::NodeAnimationTrack* Laser03track = animationLaser03->createNodeTrack(0, laser3);
+		Ogre::TransformKeyFrame* key3;
+		
+		key3 = Laser03track->createNodeKeyFrame(0.0);
+		key3->setTranslate(Vector3(0, 0, 0));
+		key3->setScale(Vector3(2, 0.7, 2));
+
+		key3 = Laser03track->createNodeKeyFrame(0.5);
+		key3->setTranslate(Vector3(0, 300, 0));
+		key3->setScale(Vector3(2, 0.7, 2));
+
+		AnimLaser3 = mSceneMgr->createAnimationState("AnimLaser03");
+		AnimLaser3->setEnabled(true);
+		AnimLaser3->setLoop(true);
 
 		// Torreta Numero 3
-
 		Ogre:: SceneNode* turretbase3;
 		Ogre:: SceneNode* turretbase3_1;
 
@@ -711,7 +771,35 @@ public:
 		canon3->attachObject(entCanon3);
 		canon3->setScale(0.5, 0.5, 0.5);
 		canon3->setPosition(0, 9, 3);
-		canon3->pitch(Degree(75));
+		canon3->pitch(Degree(90));
+
+		// Laser 3_1
+		Ogre::SceneNode* laser4;
+		Ogre::Entity* entLaser4 = mSceneMgr->createEntity("usb_laser.mesh");
+		laser4 = mSceneMgr->createSceneNode("laser4");
+		canon3->addChild(laser4);
+		laser4->attachObject(entLaser4);
+		laser4->setScale(2, 0.7, 2);
+		laser4->setPosition(0, -2, 0);
+		
+		float duration4 = 0.7;
+		Ogre::Animation* animationLaser04 = mSceneMgr->createAnimation("AnimLaser04",duration4);
+		animationLaser04->setInterpolationMode(Animation::IM_SPLINE);
+		
+		Ogre::NodeAnimationTrack* Laser04track = animationLaser04->createNodeTrack(0, laser4);
+		Ogre::TransformKeyFrame* key4;
+		
+		key4 = Laser04track->createNodeKeyFrame(0.0);
+		key4->setTranslate(Vector3(0, 0, 0));
+		key4->setScale(Vector3(2, 0.7, 2));
+
+		key4 = Laser04track->createNodeKeyFrame(0.7);
+		key4->setTranslate(Vector3(0, 300, 0));
+		key4->setScale(Vector3(2, 0.7, 2));
+
+		AnimLaser4 = mSceneMgr->createAnimationState("AnimLaser04");
+		AnimLaser4->setEnabled(true);
+		AnimLaser4->setLoop(true);
 
 		Ogre::Entity* entCanon4 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		canon4 = mSceneMgr->createSceneNode("canon4");
@@ -719,7 +807,7 @@ public:
 		canon4->attachObject(entCanon4);
 		canon4->setScale(0.4, 0.6, 0.4);
 		canon4->setPosition(0, 9, 3);
-		canon4->pitch(Degree(75));
+		canon4->pitch(Degree(90));
 
 		entTorreta03->setMaterialName("matPropio04");
 		entSuperficie3->setMaterialName("matPropio04");
@@ -754,21 +842,85 @@ public:
 		canon4_1->attachObject(entCanon4_1);
 		canon4_1->setScale(0.7, 0.27, 0.7);
 		canon4_1->setPosition(5, 2, 3);
-		canon4_1->pitch(Degree(75));
+		canon4_1->pitch(Degree(90));
 
+		// Laser 4_1
+		Ogre::SceneNode* laser5;
+		Ogre::Entity* entLaser5 = mSceneMgr->createEntity("usb_laser.mesh");
+		laser5 = mSceneMgr->createSceneNode("laser5");
+		canon4_1->addChild(laser5);
+		laser5->attachObject(entLaser5);
+		laser5->setScale(2, 0.7, 2);
+		laser5->setPosition(0, -2, 0);
+		
+		float duration5 = 0.5;
+		Ogre::Animation* animationLaser05 = mSceneMgr->createAnimation("AnimLaser05",duration5);
+		animationLaser05->setInterpolationMode(Animation::IM_SPLINE);
+		
+		Ogre::NodeAnimationTrack* Laser05track = animationLaser05->createNodeTrack(0, laser5);
+		Ogre::TransformKeyFrame* key5;
+		
+		key5 = Laser05track->createNodeKeyFrame(0.0);
+		key5->setTranslate(Vector3(0, 0, 0));
+		key5->setScale(Vector3(2, 0.7, 2));
+
+		key5 = Laser05track->createNodeKeyFrame(0.5);
+		key5->setTranslate(Vector3(0, 300, 0));
+		key5->setScale(Vector3(2, 0.7, 2));
+
+		AnimLaser5 = mSceneMgr->createAnimationState("AnimLaser05");
+		AnimLaser5->setEnabled(true);
+		AnimLaser5->setLoop(true);
+
+		// Canon 4_2
 		Ogre::Entity* entCanon4_2 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		canon4_2 = mSceneMgr->createSceneNode("canon4_2");
 		torreta04->addChild(canon4_2);
 		canon4_2->attachObject(entCanon4_2);
 		canon4_2->setScale(0.7, 0.27, 0.7);
 		canon4_2->setPosition(-5, 2, 3);
-		canon4_2->pitch(Degree(75));
+		canon4_2->pitch(Degree(90));
+
+		// Laser 4_2
+		Ogre::SceneNode* laser6;
+		Ogre::Entity* entLaser6 = mSceneMgr->createEntity("usb_laser.mesh");
+		laser6 = mSceneMgr->createSceneNode("laser6");
+		canon4_2->addChild(laser6);
+		laser6->attachObject(entLaser6);
+		laser6->setScale(2, 0.7, 2);
+		laser6->setPosition(0, -2, 0);
+		
+		float duration6 = 0.3;
+		Ogre::Animation* animationLaser06 = mSceneMgr->createAnimation("AnimLaser06",duration6);
+		animationLaser06->setInterpolationMode(Animation::IM_SPLINE);
+		
+		Ogre::NodeAnimationTrack* Laser06track = animationLaser06->createNodeTrack(0, laser6);
+		Ogre::TransformKeyFrame* key6;
+		
+		key6 = Laser06track->createNodeKeyFrame(0.0);
+		key6->setTranslate(Vector3(0, 0, 0));
+		key6->setScale(Vector3(2, 0.7, 2));
+
+		key6 = Laser06track->createNodeKeyFrame(0.3);
+		key6->setTranslate(Vector3(0, 300, 0));
+		key6->setScale(Vector3(2, 0.7, 2));
+
+		AnimLaser6 = mSceneMgr->createAnimationState("AnimLaser06");
+		AnimLaser6->setEnabled(true);
+		AnimLaser6->setLoop(true);
 
 		entTorreta04->setMaterialName("matPropio02");
 		entSuperficie4->setMaterialName("matPropio04");
 		entCanon4_1->setMaterialName("matPropio03");
 		entCanon4_2->setMaterialName("matPropio03");
 		torreta04->yaw(Degree(-30));
+
+		entLaser->setMaterialName("matPropio07");
+		entLaser2->setMaterialName("matPropio07");
+		entLaser3->setMaterialName("matPropio08");
+		entLaser4->setMaterialName("matPropio09");
+		entLaser5->setMaterialName("matPropio09");
+		entLaser6->setMaterialName("matPropio08");
 
 		//SPACE
 		mSceneMgr->setSkyDome(true, "matPropio05", 5, 8);
