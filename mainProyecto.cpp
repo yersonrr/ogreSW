@@ -5,7 +5,6 @@
 
 #define v3 Ogre::Vector3
 #define v2 Ogre::Vector2
-<<<<<<< HEAD
 
 int number_wings = 4;
 
@@ -25,10 +24,6 @@ char* wingCloseName[] = {"wing_close_1", "wing_close_2", "wing_close_3", "wing_c
 bool is_accelerating = false;
 
 SceneNode * wing[4], * wing2[4];
-=======
-float wing_degree[4] = {30.0, -30.0, 30.0, -30.0};
-v3 ship_position(0, 0, 0),
-   cam_position(0, 10, 50);
 
 Ogre::AnimationState* AnimLaser1;
 Ogre::AnimationState* AnimLaser2;
@@ -36,9 +31,6 @@ Ogre::AnimationState* AnimLaser3;
 Ogre::AnimationState* AnimLaser4;
 Ogre::AnimationState* AnimLaser5;
 Ogre::AnimationState* AnimLaser6;
-
-SceneNode * wing[4];
->>>>>>> master
 
 
 class FrameListenerClase : public Ogre::FrameListener{
@@ -510,10 +502,9 @@ public:
 		createWing(manager, wing[0], std::string("ship_left_wing1"), wing_size, left_degrees, v3(wing_proximity, 0.0, 0.0));
 		wing[0]->pitch(Degree(wing_degree[0]));
 
-<<<<<<< HEAD
 		wing2[1] = ship->createChildSceneNode();
 		wing[1] = wing2[1]->createChildSceneNode();
-=======
+
 		// Create cylinder left wing
 		Ogre::Entity* entCylinderWing01 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		Ogre:: SceneNode* cylinderWing01 = mSceneMgr->createSceneNode("cylinderWing01");
@@ -523,9 +514,6 @@ public:
 		cylinderWing01->setPosition(2.3, 5, 1);
 		cylinderWing01->roll(Degree(90));
 		
-
-		wing[1] = ship->createChildSceneNode();
->>>>>>> master
 		createWing(manager, wing[1], std::string("ship_left_wing2"), wing_size, left_degrees, v3(wing_proximity, -1.0, 0.0));
 		wing[1]->pitch(Degree(wing_degree[1]));
 
@@ -544,10 +532,9 @@ public:
 		createWing(manager, wing[2], std::string("ship_right_wing1"), wing_size, right_degrees, v3(-wing_proximity, 0.0, 8.0));
 		wing[2]->pitch(Degree(wing_degree[2]));
 
-<<<<<<< HEAD
 		wing2[3] = ship->createChildSceneNode();
 		wing[3] = wing2[3]->createChildSceneNode();
-=======
+
 		// Create cylinder right wing 01
 		Ogre::Entity* entCylinderWing03 = mSceneMgr->createEntity("usb_cilindro.mesh");
 		Ogre:: SceneNode* cylinderWing03 = mSceneMgr->createSceneNode("cylinderWing03");
@@ -557,8 +544,6 @@ public:
 		cylinderWing03->setPosition(-0.3, 5, 0.9);
 		cylinderWing03->roll(Degree(90));
 
-		wing[3] = ship->createChildSceneNode();
->>>>>>> master
 		createWing(manager, wing[3], std::string("ship_right_wing2"), wing_size, right_degrees, v3(-wing_proximity, -1.0, 8.0));
 		wing[3]->pitch(Degree(wing_degree[3]));
 
