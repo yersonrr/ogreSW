@@ -16,6 +16,9 @@ Ogre::AnimationState* AnimLaser4;
 Ogre::AnimationState* AnimLaser5;
 Ogre::AnimationState* AnimLaser6;
 
+Ogre::AnimationState* AnimRight;
+Ogre::AnimationState* AnimNormal1;
+
 SceneNode * wing[4];
 
 
@@ -75,14 +78,35 @@ public:
 		}*/
 
 		if(_key->isKeyDown(OIS::KC_A)) {
-			if (_node->getPosition().x > -20)
+			if (_node->getPosition().x > -20){
 				tmov += Ogre::Vector3(-10,0,0);
+				if (!AnimNormal1->getEnabled()) {
+					AnimNormal1->setEnabled(true);
+					AnimRight->setEnabled(false);
+					AnimNormal1->setLoop(false);
+					AnimNormal1->setTimePosition(0.0);
+				}
+			}
 		}
-		
+
+		if(AnimNormal1->getEnabled())
+			AnimNormal1->addTime(evt.timeSinceLastFrame);
+
+
 		if(_key->isKeyDown(OIS::KC_D)) {
-			if (_node->getPosition().x < 20)
+			if (_node->getPosition().x < 20){
 				tmov += Ogre::Vector3(10,0,0);
+				if (!AnimRight->getEnabled()) {
+					AnimRight->setEnabled(true);
+					AnimNormal1->setEnabled(false);
+					AnimRight->setLoop(false);
+					AnimRight->setTimePosition(0.0);
+				}
+			}
 		}
+
+		if(AnimRight->getEnabled())
+			AnimRight->addTime(evt.timeSinceLastFrame);
 
 		if(_key->isKeyDown(OIS::KC_E)) {
 			wing_degree[0] += 10.0;
@@ -119,6 +143,7 @@ class Example1 : public ExampleApplication
 public:
 	Ogre::FrameListener* FrameListener01;
 	SceneNode* ship;
+	SceneNode* ship2;
 
 	Example1(){
 		FrameListener01 = NULL;
@@ -138,7 +163,7 @@ public:
 	}
 
 	void createFrameListener(){
-		FrameListener01 = new FrameListenerClase(ship, mCamera, mWindow);
+		FrameListener01 = new FrameListenerClase(ship2, mCamera, mWindow);
 		mRoot->addFrameListener(FrameListener01);
 	}
 
@@ -362,10 +387,11 @@ public:
 			  mid_ratio = 0.2,
 			  mid_length = 11.0;
 
-		ship = manager->getRootSceneNode()->createChildSceneNode();
-		ship->setPosition(ship_position);
-		ship->setScale(ship_size, ship_size, ship_size);
-		ship->yaw(Degree(180.0));
+		ship2 = manager->getRootSceneNode()->createChildSceneNode();
+		ship = ship2->createChildSceneNode();
+		ship2->setPosition(ship_position);
+		ship2->setScale(ship_size, ship_size, ship_size);
+		ship2->yaw(Degree(180.0));
 
 		SceneNode* back = ship->createChildSceneNode();
 		drawOctagon(manager, back, std::string("back"));
@@ -375,6 +401,51 @@ public:
 		front->yaw(Degree(180.0));
 		front->setPosition(0.0, 0.0, start_length + mid_length);
 		front->setScale(mid_ratio, mid_ratio, 1.0);
+
+		// Create animation ship
+
+		float duration7 = 1.0;
+		Ogre::Animation* animationRight = mSceneMgr->createAnimation("AnimRight",duration7);
+		animationRight->setInterpolationMode(Animation::IM_SPLINE);
+		
+		Ogre::NodeAnimationTrack* Righttrack = animationRight->createNodeTrack(0, ship);
+		Ogre::TransformKeyFrame* key7;
+		
+		key7 = Righttrack->createNodeKeyFrame(0.0);
+		key7->setRotation(Ogre::Quaternion(Degree(0), v3(0,0,1)));
+
+		key7 = Righttrack->createNodeKeyFrame(0.5);
+		key7->setRotation(Ogre::Quaternion(Degree(30), v3(0,0,1)));
+
+		key7 = Righttrack->createNodeKeyFrame(1.0);
+		key7->setRotation(Ogre::Quaternion(Degree(0), v3(0,0,1)));
+
+		AnimRight = mSceneMgr->createAnimationState("AnimRight");
+		AnimRight->setEnabled(false);
+		AnimRight->setLoop(false);
+		AnimRight->setTimePosition(0.0);
+
+		// Create animation ship
+
+		float duration8 = 1.0;
+		Ogre::Animation* animationNormal01 = mSceneMgr->createAnimation("AnimNormal1",duration8);
+		animationNormal01->setInterpolationMode(Animation::IM_SPLINE);
+		
+		Ogre::NodeAnimationTrack* Normal1track = animationNormal01->createNodeTrack(0, ship);
+		Ogre::TransformKeyFrame* key8;
+		
+		key8 = Normal1track->createNodeKeyFrame(0.0);
+		key8->setRotation(Ogre::Quaternion(Degree(0), v3(0,0,1)));
+
+		key8 = Normal1track->createNodeKeyFrame(0.5);
+		key8->setRotation(Ogre::Quaternion(Degree(-30), v3(0,0,1)));
+
+		key8 = Normal1track->createNodeKeyFrame(1.0);
+		key8->setRotation(Ogre::Quaternion(Degree(0), v3(0,0,1)));
+
+		AnimNormal1 = mSceneMgr->createAnimationState("AnimNormal1");
+		AnimNormal1->setEnabled(false);
+		AnimNormal1->setLoop(false);
 
 		// Create cylinder
 		Ogre::Entity* entCylinderMotor01 = mSceneMgr->createEntity("usb_cilindro.mesh");
